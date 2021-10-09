@@ -130,26 +130,8 @@ const initWebServer = async () => {
       if (asset.file === undefined) {
         asset.file = asset.img;
       }
-      const filePath = path.join('data', 'static-html', asset.dir, asset.file);
-      if (fs.existsSync(filePath)) {
-        const data = fs.readFileSync(filePath);
-        res.type(asset.type).send(data);
-      } else {
-        let dummyData = '<svg id="emoji" width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">';
-        dummyData += '<g>';
-        dummyData += '<rect x="0" y="0" width="100" height="100" fill="none" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1">';
-        dummyData += '</rect>';
-        dummyData += `<text x="50" y="40" font-family="impact" font-size="12" stroke="cyan" fill="black" pointer-events="none" text-anchor="middle">`;
-        dummyData += asset.dir;
-        dummyData += '</text>';
-        dummyData += `<text x="50" y="60" font-family="impact" font-size="12" stroke="cyan" fill="black" pointer-events="none" text-anchor="middle">`;
-        dummyData += asset.img;
-        dummyData += '</text>';
-        dummyData += '</g>';
-        dummyData += '</svg>';
-        const dummyDataType = 'image/svg+xml';
-        res.type(dummyDataType).send(dummyData);
-      }
+      const url = `${config.dataPackUrl}/static-html/${asset.dir}/${asset.file}`;
+      res.redirect(302, url);
     });
   });
 

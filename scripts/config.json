@@ -490,6 +490,7 @@
       ]
     }
   ],
+  "dataPackUrl": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/",
   "web": {
     "port": "8585"
   },
