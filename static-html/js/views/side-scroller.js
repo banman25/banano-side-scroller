@@ -2,6 +2,7 @@ const BACKGROUND_WIDTH = 1000;
 const BACKGROUND_HEIGHT = 700;
 const ASSET_INTERSECT_HEIGHT = 10;
 const ASSET_SIZE = 75;
+const MOVE_DX = 25;
 const OBSTACLE_MAX_Y = BACKGROUND_HEIGHT - ASSET_SIZE;
 const FOREGROUND_MAX_Y = BACKGROUND_HEIGHT - (ASSET_SIZE*2);
 const BACKGROUND_IMAGE_WIDTH = 700;
@@ -115,16 +116,16 @@ const onLoad = () => {
 
   setInterval(() => {
     if (!captchaDisplayed) {
-      moveBackground();
-      moveObstacle();
-      moveReward();
-      moveForegroundDown();
-      moveSmasher();
       loadScore();
       remaining--;
       if (remaining == 0) {
         showCaptcha();
         loadBoard(groupSvgElt);
+      } else {
+        moveBackground();
+        moveObstacle();
+        moveReward();
+        moveForegroundDown();
       }
     }
   }, INTERVAL);
@@ -301,10 +302,9 @@ const moveObstacle = () => {
   obstacleElts.forEach((obstacleElt) => {
     const x = parseFloat(get(obstacleElt, 'x'));
     const eltWidth = parseFloat(get(obstacleElt, 'width'));
-    if (x < -eltWidth) {
-      // set(obstacleElt, 'x', (x - 20) + BACKGROUND_WIDTH + eltWidth);
-    } else {
-      set(obstacleElt, 'x', x - 20);
+    if (x >= -eltWidth) {
+      // if elt is not offscreen, move it left.
+      set(obstacleElt, 'x', x - MOVE_DX);
     }
   });
 };
@@ -317,36 +317,9 @@ const moveReward = () => {
   elts.forEach((elt) => {
     const x = parseFloat(get(elt, 'x'));
     const eltWidth = parseFloat(get(elt, 'width'));
-    if (x < -eltWidth) {
-      // set(elt, 'x', (x - 20) + BACKGROUND_WIDTH + eltWidth);
-    } else {
-      set(elt, 'x', x - 20);
-    }
-  });
-};
-
-const moveSmasher = () => {
-  if (captchaDisplayed) {
-    return;
-  }
-  const elts = [...document.getElementsByClassName('smasher')];
-  elts.forEach((elt) => {
-    const y = parseFloat(get(elt, 'y'));
-    const down = get(elt, 'down') == 'true';
-    if (down) {
-      if (y < SMASHER_MAX_Y) {
-        set(elt, 'y', y + 5);
-      } else {
-        set(elt, 'y', SMASHER_MAX_Y);
-        set(elt, 'down', false);
-      }
-    } else {
-      if (y > SMASHER_MIN_Y) {
-        set(elt, 'y', y - 5);
-      } else {
-        set(elt, 'y', SMASHER_MIN_Y);
-        set(elt, 'down', true);
-      }
+    if (x >= -eltWidth) {
+      // if elt is not offscreen, move it left.
+      set(elt, 'x', x - MOVE_DX);
     }
   });
 };
