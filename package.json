@@ -1,0 +1,41 @@
+{
+  "name": "side-scroller",
+  "version": "0.0.1",
+  "description": "side-scroller",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BananoCoin/side-scroller.git"
+  },
+  "scripts": {
+    "eslint": "eslint --fix 'scripts/**/*.js'",
+    "jsonlint": "jsonlint -q package.json;jsonlint -q scripts;jsonlint -q config.json;",
+    "publish-preflight": "find . -name '.DS_Store' | xargs rm;npm update;npm outdated;npm i;npm audit fix;npm run eslint;npm run jsonlint;",
+    "start": "node -max-old-space-size=1700 scripts/index.js",
+    "screenstart": "screen -dmSL side_scroller npm start;screen -x side_scroller",
+    "screenrestart": "npm stop;screen -x side_scroller;screen -dmSL side_scroller npm start;screen -x side_scroller",
+    "stop": "node scripts/stop.js"
+  },
+  "author": "Coranos",
+  "license": "MIT",
+  "dependencies": {
+    "blakejs": "^1.1.1",
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "express-handlebars": "^5.3.4",
+    "mkdirp": "^1.0.4",
+    "request": "^2.88.2",
+    "socket.io-client": "^4.2.0",
+    "socket.io": "^4.2.0"
+  },
+  "preferGlobal": true,
+  "devDependencies": {
+    "@prantlf/jsonlint": "^10.2.0",
+    "chai": "^4.3.4",
+    "eslint": "^7.32.0",
+    "eslint-config-google": "^0.14.0",
+    "mocha": "^9.1.2",
+    "nyc": "^15.1.0"
+  }
+}
