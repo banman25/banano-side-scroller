@@ -11,6 +11,8 @@ const MOVE_Y = 200;
 
 const INTERVAL = 100;
 
+const BURN_ACCOUNT = 'ban_1uo1cano1bot1a1pha1616161616161616161616161616161616p3s5tifp';
+
 const MONKEY_HREF = 'monkey/monkey';
 
 const REWARD_HREF = 'rewards/banana';
@@ -36,6 +38,7 @@ let captchaDisplayed = false;
 let captchaDisplayCooldown = 0;
 
 const onLoad = () => {
+  loadAccount();
   const mainElt = document.querySelector('#side_scroller');
   clear(mainElt);
   bmcaptcha.init('#side_scroller', captchaClicked);
@@ -129,8 +132,26 @@ const onLoad = () => {
   loadBoard(groupSvgElt);
 };
 
-const incrementScore = async () => {
-  const response = await fetch('/increment_score', {
+const loadAccount = () => {
+  const accountElt = document.querySelector('#account');
+  if (window.localStorage.account === undefined) {
+    window.localStorage.account = BURN_ACCOUNT;
+  }
+  accountElt.value = window.localStorage.account;
+};
+
+const saveAccount = () => {
+  const accountElt = document.querySelector('#account');
+  window.localStorage.account = accountElt.value;
+};
+
+const incrementScore = async (rewardElt) => {
+  const id = rewardElt.dataset.chunkId;
+  const col_ix = rewardElt.dataset.chunkColIx;
+  const row_ix = rewardElt.dataset.chunkRowIx;
+  const url = '/increment_score?' +
+   `account=${account}&id=${id}&col_ix=${col_ix}&row_ix=${row_ix}`;
+  const response = await fetch(url, {
     method: 'GET',
   });
   const responseJson = await response.json();
@@ -139,7 +160,8 @@ const incrementScore = async () => {
 };
 
 const loadScore = async () => {
-  const response = await fetch('/score', {
+  const url = `/score?account=${account}`;
+  const response = await fetch(url, {
     method: 'GET',
   });
   const responseJson = await response.json();
@@ -172,9 +194,12 @@ const loadBoard = async (groupSvgElt) => {
     const id = chunkIds[ix];
     const chunk = await loadChunkById(id);
     remaining += chunk.length;
-    chunk.forEach((chunkColumn) => {
+
+    for (let chunkColumnIx = 0; chunkColumnIx < chunk.length; chunkColumnIx++) {
+      const chunkColumn = chunk[chunkColumnIx];
       let y = OBSTACLE_MAX_Y;
-      chunkColumn.forEach((assetId) => {
+      for (let chunkRowIx = 0; chunkRowIx < chunkColumn.length; chunkRowIx++) {
+        const assetId = chunkColumn[chunkRowIx];
         if (assetId >= 0) {
           if (assetId < assetsHrefs.length) {
             const href = assetsHrefs[assetId];
@@ -191,15 +216,18 @@ const loadBoard = async (groupSvgElt) => {
               'stroke': 'none',
               'class': classNm,
               'href': href,
+              'data-chunk-id': id,
+              'data-chunk-col-ix': chunkColumnIx,
+              'data-chunk-row-ix': chunkRowIx,
             });
           } else {
             console.log('no asset:' + assetId);
           }
         }
         y -= ASSET_SIZE;
-      });
+      }
       x += ASSET_SIZE;
-    });
+    }
   }
 };
 
@@ -396,7 +424,7 @@ const updateScore = () => {
       if (intersect(rewardElt, foregroundElt)) {
         const parentElement = rewardElt.parentElement;
         parentElement.removeChild(rewardElt);
-        incrementScore();
+        incrementScore(rewardElt);
       }
     });
   });

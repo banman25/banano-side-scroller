@@ -69,6 +69,7 @@ bmcaptcha.init = (id, captchaClickedCallback) => {
 bmcaptcha.captchaClicked = (event) => {
   // console.log('captchaClicked', event.target);
   const request = {};
+  request.account = window.localStorage.account;
   request.secretKey = bmcaptcha.secretKey;
   request.answer = event.target.getAttribute('data_answer');
 

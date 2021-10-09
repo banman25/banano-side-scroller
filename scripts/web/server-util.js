@@ -16,6 +16,7 @@ const dateUtil = require('../util/date-util.js');
 const bmCaptchaUtil = require('../util/bm-captcha-util.js');
 
 // constants
+const REWARD_IX = 2;
 let chunksById;
 const chunkIds = [];
 
@@ -24,7 +25,7 @@ let config;
 let loggingUtil;
 let instance;
 let closeProgramFn;
-let score = 0;
+const dataByAccount = new Map();
 
 // functions
 const init = async (_config, _loggingUtil) => {
@@ -56,6 +57,15 @@ const deactivate = async () => {
   loggingUtil = undefined;
   closeProgramFn = undefined;
   instance.close();
+};
+
+const getAccountData = (account) => {
+  if (!dataByAccount.has(account)) {
+    const accountData = {};
+    accountData.score = 0;
+    dataByAccount.set(account, accountData);
+  }
+  return dataByAccount.get(account);
 };
 
 const initWebServer = async () => {
@@ -114,9 +124,10 @@ const initWebServer = async () => {
   });
 
   app.post('/bm-captcha-verify', async (req, res) => {
-    const callback = (success) => {
+    const callback = (account, success) => {
       if (!success) {
-        score = 0;
+        const accountData = getAccountData(account);
+        accountData.score = 0;
       }
     };
     bmCaptchaUtil.verify(req, res, callback);
@@ -125,6 +136,7 @@ const initWebServer = async () => {
   app.post('/bm-captcha-request', async (req, res) => {
     bmCaptchaUtil.captcha(req, res);
   });
+
   config.assets.forEach((asset) => {
     app.get(`/${asset.dir}/${asset.img}`, async (req, res) => {
       if (asset.file === undefined) {
@@ -136,21 +148,41 @@ const initWebServer = async () => {
   });
 
   app.get('/increment_score', async (req, res) => {
-    score++;
+    const account = req.query.account;
+    const accountData = getAccountData(account);
+    const id = req.query.id;
+    const colIx = req.query.col_ix;
+    const rowIx = req.query.row_ix;
+    // console.log('increment_score', 'account', account, 'id', id, 'colIx', colIx, 'rowIx', rowIx);
+    if (chunksById[id] !== undefined) {
+      const chunk = chunksById[id];
+      // console.log('increment_score', 'chunk', chunk);
+      if (chunk[colIx] !== undefined) {
+        const col = chunk[colIx];
+        // console.log('increment_score', 'col', col);
+        if (col[rowIx] == REWARD_IX) {
+          // console.log('increment_score', 'accountData.score', accountData.score);
+          accountData.score++;
+        }
+      }
+    }
     const data = {};
-    data.score = score;
+    data.score = accountData.score;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
   });
 
   app.get('/score', async (req, res) => {
     const data = {};
-    data.score = score;
+    const account = req.query.account;
+    const accountData = getAccountData(account);
+    data.score = accountData.score;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
   });
 
   app.get('/board', async (req, res) => {
+    const account = req.query.account;
     const data = {};
     data.chunk_ids = [];
     for (let x = 0; x < config.numberOfChunksPerBoard; x++) {
@@ -169,6 +201,12 @@ const initWebServer = async () => {
     }
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
+  });
+
+  app.get('/js-lib/bananocoin-bananojs.js', async (req, res) => {
+    const filePath = path.join('node_modules', '@bananocoin', 'bananojs', 'dist', 'bananocoin-bananojs.js');
+    const data = fs.readFileSync(filePath);
+    res.type('application/javascript').send(data);
   });
 
   app.get('/favicon.ico', async (req, res) => {

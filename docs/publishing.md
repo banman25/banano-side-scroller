@@ -6,6 +6,6 @@
 
 ## to publish a new version
 
-    npm run publish-preflight;
+    npm run preflight;
 
     npm --no-git-tag-version version patch;

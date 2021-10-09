@@ -65,7 +65,7 @@ const verify = async (req, res, callback) => {
     }
     delete site.answer;
   }
-  callback(response.success);
+  callback(req.body.account, response.success);
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify(response));
 };
