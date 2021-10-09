@@ -148,6 +148,10 @@ const initWebServer = async () => {
   });
 
   app.get('/increment_score', async (req, res) => {
+    /*
+     * to do: check that the chunk id and colIx are to the right of the previous
+     * captured reward.
+     */
     const account = req.query.account;
     const accountData = getAccountData(account);
     const id = req.query.id;
@@ -188,6 +192,8 @@ const initWebServer = async () => {
     for (let x = 0; x < config.numberOfChunksPerBoard; x++) {
       data.chunk_ids.push(randomUtil.getRandomArrayElt(chunkIds));
     }
+    const accountData = getAccountData(account);
+    accountData.chunk_ids = data.chunk_ids;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
   });
