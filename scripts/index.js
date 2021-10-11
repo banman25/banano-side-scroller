@@ -31,6 +31,7 @@ const init = async () => {
 
   modules.push(ipUtil);
   modules.push(dateUtil);
+  modules.push(bananojsCacheUtil);
   modules.push(bmCaptchaUtil);
   modules.push(httpsUtil);
   modules.push(webServerUtil);

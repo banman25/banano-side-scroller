@@ -93,7 +93,7 @@ const saveAccountData = (account, data) => {
 const getAccountData = (account) => {
   const accountFile = getAccountFile(account);
   if (!fs.existsSync(accountFile)) {
-    saveAccountDataJson(account, {'score': '0'});
+    saveAccountData(account, {'score': '0'});
   }
   const data = fs.readFileSync(accountFile, 'UTF-8');
   return JSON.parse(data);
