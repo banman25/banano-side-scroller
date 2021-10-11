@@ -33,7 +33,7 @@ const assetsHrefs = [
   REWARD_HREF,
 ];
 
-let score = 0;
+let score = 'loading...';
 let remaining = 0;
 let captchaDisplayed = false;
 let captchaDisplayCooldown = 0;
@@ -150,23 +150,25 @@ const incrementScore = async (rewardElt) => {
   const id = rewardElt.dataset.chunkId;
   const col_ix = rewardElt.dataset.chunkColIx;
   const row_ix = rewardElt.dataset.chunkRowIx;
+  const account = window.localStorage.account;
   const url = '/increment_score?' +
    `account=${account}&id=${id}&col_ix=${col_ix}&row_ix=${row_ix}`;
-  const response = await fetch(url, {
+  // const response =
+  await fetch(url, {
     method: 'GET',
   });
-  const responseJson = await response.json();
-  score = responseJson.score;
+  // const responseJson = await response.json();
   updateScore();
 };
 
 const loadScore = async () => {
+  const account = window.localStorage.account;
   const url = `/score?account=${account}`;
   const response = await fetch(url, {
     method: 'GET',
   });
   const responseJson = await response.json();
-  score = responseJson.score;
+  score = `${responseJson.tempScore}+${responseJson.finalScore}`;
   updateScore();
 };
 
@@ -408,7 +410,6 @@ const captchaClicked = (response) => {
   captchaDisplayed = false;
   // alert('actual answer ' + actualAnswer + ', expected answer ' + answer.answer);
   if (!response.success) {
-    score = 0;
     displayErrorMessage('captcha failed. ' + response.message);
   } else {
     displayErrorMessage('captcha success. ' + response.message);

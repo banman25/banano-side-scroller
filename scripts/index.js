@@ -2,6 +2,8 @@
 // libraries
 
 // modules
+const bananojsCacheUtil = require('./util/bananojs-cache-util.js');
+const ipUtil = require('./util/ip-util.js');
 const dateUtil = require('./util/date-util.js');
 const bmCaptchaUtil = require('./util/bm-captcha-util.js');
 const httpsUtil = require('./util/https-util.js');
@@ -27,6 +29,7 @@ const init = async () => {
 
   overrideConfig();
 
+  modules.push(ipUtil);
   modules.push(dateUtil);
   modules.push(bmCaptchaUtil);
   modules.push(httpsUtil);

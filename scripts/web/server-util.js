@@ -13,7 +13,9 @@ const cookieParser = require('cookie-parser');
 // modules
 const randomUtil = require('../util/random-util.js');
 const dateUtil = require('../util/date-util.js');
+const ipUtil = require('../util/ip-util.js');
 const bmCaptchaUtil = require('../util/bm-captcha-util.js');
+const bananojsCacheUtil = require('../util/bananojs-cache-util.js');
 
 // constants
 const REWARD_IX = 2;
@@ -25,7 +27,7 @@ let config;
 let loggingUtil;
 let instance;
 let closeProgramFn;
-const dataByAccount = new Map();
+const tempDataByAccount = new Map();
 
 // functions
 const init = async (_config, _loggingUtil) => {
@@ -59,13 +61,18 @@ const deactivate = async () => {
   instance.close();
 };
 
-const getAccountData = (account) => {
-  if (!dataByAccount.has(account)) {
+const getTempData = (account, ip) => {
+  if (!tempDataByAccount.has(account)) {
     const accountData = {};
-    accountData.score = 0;
-    dataByAccount.set(account, accountData);
+    accountData.tempScoreByIp = new Map();
+    if (!accountData.tempScoreByIp.has(ip)) {
+      const ipData = {};
+      ipData.score = 0;
+      accountData.tempScoreByIp.set(ip, ipData);
+    }
+    tempDataByAccount.set(account, accountData);
   }
-  return dataByAccount.get(account);
+  return tempDataByAccount.get(account).tempScoreByIp.get(ip);
 };
 
 const initWebServer = async () => {
@@ -124,11 +131,13 @@ const initWebServer = async () => {
   });
 
   app.post('/bm-captcha-verify', async (req, res) => {
-    const callback = (account, success) => {
-      if (!success) {
-        const accountData = getAccountData(account);
-        accountData.score = 0;
+    const ip = ipUtil.getIp(req);
+    const callback = async (account, success) => {
+      const tempData = getTempData(account, ip);
+      if (success) {
+        await bananojsCacheUtil.incrementScore(account, tempData.score);
       }
+      tempData.score = 0;
     };
     bmCaptchaUtil.verify(req, res, callback);
   });
@@ -152,8 +161,10 @@ const initWebServer = async () => {
      * to do: check that the chunk id and colIx are to the right of the previous
      * captured reward.
      */
+
+    const ip = ipUtil.getIp(req);
     const account = req.query.account;
-    const accountData = getAccountData(account);
+    const tempData = getTempData(account, ip);
     const id = req.query.id;
     const colIx = req.query.col_ix;
     const rowIx = req.query.row_ix;
@@ -166,21 +177,22 @@ const initWebServer = async () => {
         // console.log('increment_score', 'col', col);
         if (col[rowIx] == REWARD_IX) {
           // console.log('increment_score', 'accountData.score', accountData.score);
-          accountData.score++;
+          tempData.score++;
         }
       }
     }
     const data = {};
-    data.score = accountData.score;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
   });
 
   app.get('/score', async (req, res) => {
-    const data = {};
+    const ip = ipUtil.getIp(req);
     const account = req.query.account;
-    const accountData = getAccountData(account);
-    data.score = accountData.score;
+    const tempData = getTempData(account, ip);
+    const data = {};
+    data.tempScore = tempData.score;
+    data.finalScore = await bananojsCacheUtil.getScore(account);
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
   });
@@ -192,8 +204,8 @@ const initWebServer = async () => {
     for (let x = 0; x < config.numberOfChunksPerBoard; x++) {
       data.chunk_ids.push(randomUtil.getRandomArrayElt(chunkIds));
     }
-    const accountData = getAccountData(account);
-    accountData.chunk_ids = data.chunk_ids;
+    const tempData = getTempData(account);
+    tempData.chunk_ids = data.chunk_ids;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
   });

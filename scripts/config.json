@@ -497,5 +497,7 @@
   "cookieSecret": "",
   "hashSecret": "",
   "blackMonkeyDataUrl": "",
-  "numberOfChunksPerBoard": 10
+  "numberOfChunksPerBoard": 10,
+  "bananojsCacheDataDir": "data/bananojsCache",
+  "activeTimeMs": 28800000
 }
