@@ -2,7 +2,6 @@
 // libraries
 const fs = require('fs');
 const path = require('path');
-const bananojs = require('@bananocoin/bananojs');
 const awaitSemaphore = require('await-semaphore');
 // modules
 const dateUtil = require('./date-util.js');
@@ -10,6 +9,7 @@ const dateUtil = require('./date-util.js');
 // constants
 const ACCOUNT_STR = '^ban_[13456789abcdefghijkmnopqrstuwxyz]{0,64}$';
 const accountRegExp = new RegExp(ACCOUNT_STR);
+const DEBUG = false;
 
 // variables
 /* eslint-disable no-unused-vars */
@@ -49,13 +49,6 @@ const getAccountFile = (account) => {
     throw new Error('account is required.');
   };
   return path.join(config.bananojsCacheDataDir, account);
-};
-
-const testRegExp = (regExp, regExpStr, key, value) => {
-  isValid = regExp.test(value);
-  if (!isValid) {
-    invalidReason = `invalid '${key}' in body '${value}' does not match pattern '${regExpStr}'`;
-  }
 };
 
 const getScore = async (account) => {
@@ -115,7 +108,12 @@ const getActiveAccountCount = () => {
       const {mtimeMs} = fs.statSync(fileNm);
       const activeTimeMs = mtimeMs;
       const activeTimeCutoffMs = Date.now() - config.activeTimeMs;
-      // loggingUtil.log(dateUtil.getDate(), 'file', file, 'activeTimeMs', activeTimeMs, 'activeTimeCutoffMs', activeTimeCutoffMs, 'diff', (activeTimeCutoffMs - activeTimeMs));
+      /* istanbul ignore if */
+      if (DEBUG) {
+        loggingUtil.log(dateUtil.getDate(), 'file', file, 'activeTimeMs',
+            activeTimeMs, 'activeTimeCutoffMs', activeTimeCutoffMs, 'diff',
+            (activeTimeCutoffMs - activeTimeMs));
+      }
       if (activeTimeMs > activeTimeCutoffMs) {
         count++;
       }
