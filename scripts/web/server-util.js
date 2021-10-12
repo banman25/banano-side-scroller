@@ -41,6 +41,10 @@ const init = async (_config, _loggingUtil) => {
   config = _config;
   loggingUtil = _loggingUtil;
 
+  if (config.dataPackUrl.endsWith('/')) {
+    config.dataPackUrl = config.dataPackUrl.substring(0, config.dataPackUrl.length-1);
+  }
+
   loadChunks();
   await initWebServer();
 };
@@ -181,8 +185,8 @@ const initWebServer = async () => {
           tempData.score++;
         }
         if (col[rowIx] == PENALTY_IX) {
-          // console.log('increment_score', 'accountData.score', accountData.score);
           tempData.score = 0;
+          // console.log('increment_score', 'penalty', 'tempData.score', tempData.score);
         }
       }
     }

@@ -40,7 +40,7 @@ let remaining = 0;
 let captchaDisplayed = false;
 let boardLoaded = false;
 let boardLoading = false;
-let captchaDisplayCooldown = 0;
+const captchaDisplayCooldown = 0;
 
 const onLoad = () => {
   loadAccount();
@@ -166,7 +166,6 @@ const incrementScore = async (rewardElt) => {
   });
   // const responseJson = await response.json();
   await loadScore();
-  updateScore();
 };
 
 const loadScore = async () => {
@@ -177,7 +176,7 @@ const loadScore = async () => {
   });
   const responseJson = await response.json();
   score = `${responseJson.tempScore}+${responseJson.finalScore}`;
-  updateScore();
+  await updateScore();
 };
 
 const loadChunkIds = async () => {
@@ -369,7 +368,7 @@ const moveReward = () => {
   });
 };
 
-const moveForegroundDown = () => {
+const moveForegroundDown = async () => {
   if (captchaDisplayed) {
     return;
   }
@@ -377,7 +376,9 @@ const moveForegroundDown = () => {
   const obstacleElts = [...document.getElementsByClassName('obstacle')];
   const penaltyElts = [...document.getElementsByClassName('penalty')];
   const foregroundElts = [...document.getElementsByClassName('foreground')];
-  foregroundElts.forEach((foregroundElt) => {
+
+  for (let foregroundEltIx = 0; foregroundEltIx < foregroundElts.length; foregroundEltIx++) {
+    const foregroundElt = foregroundElts[foregroundEltIx];
     const y = parseFloat(get(foregroundElt, 'y'));
     let moveDown = true;
     obstacleElts.forEach((obstacleElt) => {
@@ -385,12 +386,18 @@ const moveForegroundDown = () => {
         moveDown = false;
       }
     });
-    penaltyElts.forEach((penaltyElt) => {
+    let showPenaltyCaptcha = false;
+    for (let penaltyEltIx = 0; penaltyEltIx < penaltyElts.length; penaltyEltIx++) {
+      const penaltyElt = penaltyElts[penaltyEltIx];
       if (intersect(penaltyElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, ASSET_SIZE)) {
         moveDown = false;
-        incrementScore(penaltyElt);
+        await incrementScore(penaltyElt);
+        showPenaltyCaptcha = true;
       }
-    });
+    }
+    if (showPenaltyCaptcha) {
+      showCaptcha();
+    }
 
     if (y < FOREGROUND_MAX_Y) {
       if (moveDown) {
@@ -399,7 +406,7 @@ const moveForegroundDown = () => {
     } else {
       set(foregroundElt, 'y', FOREGROUND_MAX_Y);
     }
-  });
+  }
 };
 
 const intersect = (obstacleElt, foregroundElt, oH, fH, yOffset) => {
@@ -435,7 +442,7 @@ const intersect = (obstacleElt, foregroundElt, oH, fH, yOffset) => {
   return true;
 };
 
-const updateScore = () => {
+const updateScore = async () => {
   if (captchaDisplayed) {
     return;
   }
@@ -445,26 +452,30 @@ const updateScore = () => {
   const rewardElts = [...document.getElementsByClassName('reward')];
   const penaltyElts = [...document.getElementsByClassName('penalty')];
   const resetCooldown = true;
-  foregroundElts.forEach((foregroundElt) => {
-    rewardElts.forEach((rewardElt) => {
+  for (let foregroundEltIx = 0; foregroundEltIx < foregroundElts.length; foregroundEltIx++) {
+    const foregroundElt = foregroundElts[foregroundEltIx];
+    for (let rewardEltIx = 0; rewardEltIx < rewardElts.length; rewardEltIx++) {
+      const rewardElt = rewardElts[rewardEltIx];
       if (intersect(rewardElt, foregroundElt)) {
         const parentElement = rewardElt.parentElement;
         parentElement.removeChild(rewardElt);
-        incrementScore(rewardElt);
+        await incrementScore(rewardElt);
       }
-    });
-    penaltyElts.forEach((penaltyElt) => {
+    }
+
+    for (let penaltyEltIx = 0; penaltyEltIx < penaltyElts.length; penaltyEltIx++) {
+      const penaltyElt = penaltyElts[penaltyEltIx];
       if (intersect(penaltyElt, foregroundElt)) {
-        incrementScore(penaltyElt);
+        await incrementScore(penaltyElt);
       }
-    });
-  });
+    }
+  }
   scoreElt.innerText = 'Score:' + score + ' Moves Remaining:' + remaining;
 };
 
 const captchaClicked = (response) => {
   captchaDisplayed = false;
-  // alert('actual answer ' + actualAnswer + ', expected answer ' + answer.answer);
+  // console.log('captchaClicked', response);
   if (!response.success) {
     displayErrorMessage('captcha failed. ' + response.message);
   } else {
@@ -479,13 +490,7 @@ const hideCaptcha = () => {
 };
 
 const showCaptcha = () => {
-  if (captchaDisplayCooldown > 0) {
-    captchaDisplayCooldown--;
-    return;
-  }
   captchaDisplayed = true;
-  captchaDisplayCooldown = 10;
-
   const callback = (json) => {
     // const gameElt = document.querySelector('#game');
     // set(gameElt, 'style', 'display:none');
