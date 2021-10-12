@@ -5,6 +5,7 @@ const ASSET_SIZE = 75;
 const MOVE_DX = 25;
 const OBSTACLE_MAX_Y = BACKGROUND_HEIGHT - ASSET_SIZE;
 const FOREGROUND_MAX_Y = BACKGROUND_HEIGHT - (ASSET_SIZE*2);
+const FOREGROUND_START_Y = FOREGROUND_MAX_Y - 5;
 const BACKGROUND_IMAGE_WIDTH = 700;
 const FOREGROUND_DY = 15;
 const MOVE_X = 40;
@@ -108,7 +109,7 @@ const onLoad = () => {
   const groupSvgElt = addChildSvgElement(svgElt, 'g');
 
   addChildSvgElement(svgElt, 'image', {
-    'y': FOREGROUND_MAX_Y,
+    'y': FOREGROUND_START_Y,
     'x': ASSET_SIZE,
     'width': ASSET_SIZE,
     'height': ASSET_SIZE,
@@ -377,6 +378,7 @@ const moveForegroundDown = async () => {
   const penaltyElts = [...document.getElementsByClassName('penalty')];
   const foregroundElts = [...document.getElementsByClassName('foreground')];
 
+  let penaltyJump = false;
   for (let foregroundEltIx = 0; foregroundEltIx < foregroundElts.length; foregroundEltIx++) {
     const foregroundElt = foregroundElts[foregroundEltIx];
     const y = parseFloat(get(foregroundElt, 'y'));
@@ -386,17 +388,13 @@ const moveForegroundDown = async () => {
         moveDown = false;
       }
     });
-    let showPenaltyCaptcha = false;
     for (let penaltyEltIx = 0; penaltyEltIx < penaltyElts.length; penaltyEltIx++) {
       const penaltyElt = penaltyElts[penaltyEltIx];
       if (intersect(penaltyElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, ASSET_SIZE)) {
         moveDown = false;
         await incrementScore(penaltyElt);
-        showPenaltyCaptcha = true;
+        penaltyJump = true;
       }
-    }
-    if (showPenaltyCaptcha) {
-      showCaptcha();
     }
 
     if (y < FOREGROUND_MAX_Y) {
@@ -406,6 +404,9 @@ const moveForegroundDown = async () => {
     } else {
       set(foregroundElt, 'y', FOREGROUND_MAX_Y);
     }
+  }
+  if (penaltyJump) {
+    moveUp();
   }
 };
 
