@@ -458,8 +458,10 @@ const updateScore = async () => {
       const rewardElt = rewardElts[rewardEltIx];
       if (intersect(rewardElt, foregroundElt)) {
         const parentElement = rewardElt.parentElement;
-        parentElement.removeChild(rewardElt);
-        await incrementScore(rewardElt);
+        if(parentElement != null) {
+          parentElement.removeChild(rewardElt);
+          await incrementScore(rewardElt);
+        }
       }
     }
 
