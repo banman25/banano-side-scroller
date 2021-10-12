@@ -18,6 +18,8 @@ const MONKEY_HREF = 'monkey/monkey';
 
 const REWARD_HREF = 'rewards/banana';
 
+const PENALTY_HREF = 'ground/water';
+
 const STATIC_BACKGROUND_HREF = 'background/static-background';
 
 const MOVING_BACKGROUND_HREF = 'background/moving-background';
@@ -29,13 +31,15 @@ const BACKGROUND_OBJECT_HREFS = [
 
 const assetsHrefs = [
   'ground/ground',
-  'ground/water',
+  PENALTY_HREF,
   REWARD_HREF,
 ];
 
 let score = 'loading...';
 let remaining = 0;
 let captchaDisplayed = false;
+let boardLoaded = false;
+let boardLoading = false;
 let captchaDisplayCooldown = 0;
 
 const onLoad = () => {
@@ -116,21 +120,24 @@ const onLoad = () => {
 
   setInterval(() => {
     if (!captchaDisplayed) {
-      loadScore();
-      remaining--;
-      if (remaining == 0) {
-        showCaptcha();
-        loadBoard(groupSvgElt);
+      if (boardLoaded) {
+        remaining--;
+        if (remaining == 0) {
+          showCaptcha();
+          loadBoard(groupSvgElt);
+        } else {
+          moveBackground();
+          moveObstacle();
+          moveReward();
+          movePenalty();
+          moveForegroundDown();
+          updateScore();
+        }
       } else {
-        moveBackground();
-        moveObstacle();
-        moveReward();
-        moveForegroundDown();
+        loadBoard(groupSvgElt);
       }
     }
   }, INTERVAL);
-
-  loadBoard(groupSvgElt);
 };
 
 const loadAccount = () => {
@@ -158,6 +165,7 @@ const incrementScore = async (rewardElt) => {
     method: 'GET',
   });
   // const responseJson = await response.json();
+  await loadScore();
   updateScore();
 };
 
@@ -189,6 +197,11 @@ const loadChunkById = async (id) => {
 };
 
 const loadBoard = async (groupSvgElt) => {
+  if (boardLoading) {
+    return;
+  }
+  boardLoading = true;
+  boardLoaded = false;
   clear(groupSvgElt);
   const chunkIds = await loadChunkIds();
   remaining = 0;
@@ -209,6 +222,9 @@ const loadBoard = async (groupSvgElt) => {
             let classNm = 'obstacle';
             if (href == REWARD_HREF) {
               classNm = 'reward';
+            }
+            if (href == PENALTY_HREF) {
+              classNm = 'penalty';
             }
             addChildSvgElement(groupSvgElt, 'image', {
               'y': y,
@@ -232,6 +248,9 @@ const loadBoard = async (groupSvgElt) => {
       x += ASSET_SIZE;
     }
   }
+  boardLoaded = true;
+  boardLoading = false;
+  await loadScore();
 };
 
 const moveUp = () => {
@@ -296,6 +315,24 @@ const moveBackground = () => {
   });
 };
 
+const movePenalty = () => {
+  if (captchaDisplayed) {
+    return;
+  }
+  const obstacleElts = [...document.getElementsByClassName('penalty')];
+  obstacleElts.forEach((obstacleElt) => {
+    const x = parseFloat(get(obstacleElt, 'x'));
+    const eltWidth = parseFloat(get(obstacleElt, 'width'));
+    if (x >= -eltWidth) {
+      // if elt is not offscreen, move it left.
+      set(obstacleElt, 'x', x - MOVE_DX);
+    } else {
+      const parentElement = obstacleElt.parentElement;
+      parentElement.removeChild(obstacleElt);
+    }
+  });
+};
+
 const moveObstacle = () => {
   if (captchaDisplayed) {
     return;
@@ -307,6 +344,9 @@ const moveObstacle = () => {
     if (x >= -eltWidth) {
       // if elt is not offscreen, move it left.
       set(obstacleElt, 'x', x - MOVE_DX);
+    } else {
+      const parentElement = obstacleElt.parentElement;
+      parentElement.removeChild(obstacleElt);
     }
   });
 };
@@ -322,6 +362,9 @@ const moveReward = () => {
     if (x >= -eltWidth) {
       // if elt is not offscreen, move it left.
       set(elt, 'x', x - MOVE_DX);
+    } else {
+      const parentElement = elt.parentElement;
+      parentElement.removeChild(elt);
     }
   });
 };
@@ -332,6 +375,7 @@ const moveForegroundDown = () => {
   }
 
   const obstacleElts = [...document.getElementsByClassName('obstacle')];
+  const penaltyElts = [...document.getElementsByClassName('penalty')];
   const foregroundElts = [...document.getElementsByClassName('foreground')];
   foregroundElts.forEach((foregroundElt) => {
     const y = parseFloat(get(foregroundElt, 'y'));
@@ -339,6 +383,12 @@ const moveForegroundDown = () => {
     obstacleElts.forEach((obstacleElt) => {
       if (intersect(obstacleElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, ASSET_SIZE)) {
         moveDown = false;
+      }
+    });
+    penaltyElts.forEach((penaltyElt) => {
+      if (intersect(penaltyElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, ASSET_SIZE)) {
+        moveDown = false;
+        incrementScore(penaltyElt);
       }
     });
 
@@ -393,6 +443,7 @@ const updateScore = () => {
   const foregroundElts = [...document.getElementsByClassName('foreground')];
   const obstacleElts = [...document.getElementsByClassName('obstacle')];
   const rewardElts = [...document.getElementsByClassName('reward')];
+  const penaltyElts = [...document.getElementsByClassName('penalty')];
   const resetCooldown = true;
   foregroundElts.forEach((foregroundElt) => {
     rewardElts.forEach((rewardElt) => {
@@ -400,6 +451,11 @@ const updateScore = () => {
         const parentElement = rewardElt.parentElement;
         parentElement.removeChild(rewardElt);
         incrementScore(rewardElt);
+      }
+    });
+    penaltyElts.forEach((penaltyElt) => {
+      if (intersect(penaltyElt, foregroundElt)) {
+        incrementScore(penaltyElt);
       }
     });
   });

@@ -19,6 +19,7 @@ const bananojsCacheUtil = require('../util/bananojs-cache-util.js');
 
 // constants
 const REWARD_IX = 2;
+const PENALTY_IX = 1;
 let chunksById;
 const chunkIds = [];
 
@@ -178,6 +179,10 @@ const initWebServer = async () => {
         if (col[rowIx] == REWARD_IX) {
           // console.log('increment_score', 'accountData.score', accountData.score);
           tempData.score++;
+        }
+        if (col[rowIx] == PENALTY_IX) {
+          // console.log('increment_score', 'accountData.score', accountData.score);
+          tempData.score = 0;
         }
       }
     }
