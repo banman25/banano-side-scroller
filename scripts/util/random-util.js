@@ -7,7 +7,7 @@ const crypto = require('crypto');
 // functions
 const shuffle = (array) => {
   if (array == undefined) {
-    throw new Error('array is required.');
+    throw Error('array is required.');
   }
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

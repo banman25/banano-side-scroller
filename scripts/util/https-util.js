@@ -15,10 +15,10 @@ let loggingUtil;
 // functions
 const init = (_config, _loggingUtil) => {
   if (_config === undefined) {
-    throw new Error('config is required.');
+    throw Error('config is required.');
   }
   if (_loggingUtil === undefined) {
-    throw new Error('loggingUtil is required.');
+    throw Error('loggingUtil is required.');
   }
   config = _config;
   loggingUtil = _loggingUtil;

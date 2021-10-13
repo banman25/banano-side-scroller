@@ -155,17 +155,23 @@ const saveAccount = () => {
 };
 
 const incrementScore = async (rewardElt) => {
+  const ix = rewardElt.dataset.chunkIx;
   const id = rewardElt.dataset.chunkId;
   const col_ix = rewardElt.dataset.chunkColIx;
   const row_ix = rewardElt.dataset.chunkRowIx;
   const account = window.localStorage.account;
   const url = '/increment_score?' +
-   `account=${account}&id=${id}&col_ix=${col_ix}&row_ix=${row_ix}`;
-  // const response =
-  await fetch(url, {
+   `account=${account}&id=${id}&ix=${ix}&col_ix=${col_ix}&row_ix=${row_ix}`;
+  const response = await fetch(url, {
     method: 'GET',
   });
-  // const responseJson = await response.json();
+  const responseJson = await response.json();
+  // console.log('incrementScore', responseJson);
+  if (!responseJson.success) {
+    displayErrorMessage(responseJson.message);
+  } else {
+    displayErrorMessage();
+  }
   await loadScore();
 };
 
@@ -181,7 +187,8 @@ const loadScore = async () => {
 };
 
 const loadChunkIds = async () => {
-  const response = await fetch('/board', {
+  const account = window.localStorage.account;
+  const response = await fetch(`/board?account=${account}`, {
     method: 'GET',
   });
   const responseJson = await response.json();
@@ -235,6 +242,7 @@ const loadBoard = async (groupSvgElt) => {
               'stroke': 'none',
               'class': classNm,
               'href': href,
+              'data-chunk-ix': ix,
               'data-chunk-id': id,
               'data-chunk-col-ix': chunkColumnIx,
               'data-chunk-row-ix': chunkRowIx,
@@ -378,10 +386,11 @@ const moveForegroundDown = async () => {
   const penaltyElts = [...document.getElementsByClassName('penalty')];
   const foregroundElts = [...document.getElementsByClassName('foreground')];
 
-  let penaltyJump = false;
   for (let foregroundEltIx = 0; foregroundEltIx < foregroundElts.length; foregroundEltIx++) {
     const foregroundElt = foregroundElts[foregroundEltIx];
     const y = parseFloat(get(foregroundElt, 'y'));
+    let penaltyJump = false;
+    let penlatyJumpElt = undefined;
     let moveDown = true;
     obstacleElts.forEach((obstacleElt) => {
       if (intersect(obstacleElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, ASSET_SIZE)) {
@@ -392,8 +401,8 @@ const moveForegroundDown = async () => {
       const penaltyElt = penaltyElts[penaltyEltIx];
       if (intersect(penaltyElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, ASSET_SIZE)) {
         moveDown = false;
-        await incrementScore(penaltyElt);
         penaltyJump = true;
+        penlatyJumpElt = penaltyElt;
       }
     }
 
@@ -404,9 +413,10 @@ const moveForegroundDown = async () => {
     } else {
       set(foregroundElt, 'y', FOREGROUND_MAX_Y);
     }
-  }
-  if (penaltyJump) {
-    moveUp();
+    if (penaltyJump) {
+      await incrementScore(penlatyJumpElt);
+      moveUp();
+    }
   }
 };
 
@@ -459,7 +469,7 @@ const updateScore = async () => {
       const rewardElt = rewardElts[rewardEltIx];
       if (intersect(rewardElt, foregroundElt)) {
         const parentElement = rewardElt.parentElement;
-        if(parentElement != null) {
+        if (parentElement != null) {
           parentElement.removeChild(rewardElt);
           await incrementScore(rewardElt);
         }
@@ -484,6 +494,7 @@ const captchaClicked = (response) => {
   } else {
     displayErrorMessage('captcha success. ' + response.message);
   }
+  boardLoaded = false;
   hideCaptcha();
 };
 

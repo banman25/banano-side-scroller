@@ -22,11 +22,11 @@ let mutex;
 const init = (_config, _loggingUtil, _seed, _entropyList) => {
   /* istanbul ignore if */
   if (_config === undefined) {
-    throw new Error('config is required.');
+    throw Error('config is required.');
   }
   /* istanbul ignore if */
   if (_loggingUtil === undefined) {
-    throw new Error('loggingUtil is required.');
+    throw Error('loggingUtil is required.');
   };
   config = _config;
   loggingUtil = _loggingUtil;
@@ -46,7 +46,7 @@ const deactivate = () => {
 
 const getAccountFile = (account) => {
   if (account === undefined) {
-    throw new Error('account is required.');
+    throw Error('account is required.');
   };
   return path.join(config.bananojsCacheDataDir, account);
 };

@@ -33,10 +33,10 @@ const tempDataByAccount = new Map();
 // functions
 const init = async (_config, _loggingUtil) => {
   if (_config === undefined) {
-    throw new Error('config is required.');
+    throw Error('config is required.');
   }
   if (_loggingUtil === undefined) {
-    throw new Error('loggingUtil is required.');
+    throw Error('loggingUtil is required.');
   }
   config = _config;
   loggingUtil = _loggingUtil;
@@ -67,17 +67,26 @@ const deactivate = async () => {
 };
 
 const getTempData = (account, ip) => {
+  if (account === undefined) {
+    throw Error('account is required.');
+  }
+  if (ip === undefined) {
+    throw Error('ip is required.');
+  }
   if (!tempDataByAccount.has(account)) {
     const accountData = {};
     accountData.tempScoreByIp = new Map();
     if (!accountData.tempScoreByIp.has(ip)) {
       const ipData = {};
       ipData.score = 0;
+      // console.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'ipData', ipData);
       accountData.tempScoreByIp.set(ip, ipData);
     }
     tempDataByAccount.set(account, accountData);
   }
-  return tempDataByAccount.get(account).tempScoreByIp.get(ip);
+  const retval = tempDataByAccount.get(account).tempScoreByIp.get(ip);
+  // console.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'retval', retval);
+  return retval;
 };
 
 const initWebServer = async () => {
@@ -162,35 +171,88 @@ const initWebServer = async () => {
   });
 
   app.get('/increment_score', async (req, res) => {
-    /*
-     * to do: check that the chunk id and colIx are to the right of the previous
-     * captured reward.
-     */
-
     const ip = ipUtil.getIp(req);
     const account = req.query.account;
-    const tempData = getTempData(account, ip);
-    const id = req.query.id;
-    const colIx = req.query.col_ix;
-    const rowIx = req.query.row_ix;
-    // console.log('increment_score', 'account', account, 'id', id, 'colIx', colIx, 'rowIx', rowIx);
-    if (chunksById[id] !== undefined) {
-      const chunk = chunksById[id];
-      // console.log('increment_score', 'chunk', chunk);
-      if (chunk[colIx] !== undefined) {
-        const col = chunk[colIx];
-        // console.log('increment_score', 'col', col);
-        if (col[rowIx] == REWARD_IX) {
-          // console.log('increment_score', 'accountData.score', accountData.score);
-          tempData.score++;
-        }
-        if (col[rowIx] == PENALTY_IX) {
-          tempData.score = 0;
-          // console.log('increment_score', 'penalty', 'tempData.score', tempData.score);
+    const id = parseInt(req.query.id, 10);
+    const ix = parseInt(req.query.ix, 10);
+    const colIx = parseInt(req.query.col_ix, 10);
+    const rowIx = parseInt(req.query.row_ix, 10);
+
+    const data = {};
+    data.success = false;
+    data.message = 'unknown error';
+    if (account == undefined) {
+      data.success = false;
+      data.message = 'account missing from request';
+    } else {
+      const tempData = getTempData(account, ip);
+      // console.log(dateUtil.getDate(), 'increment_score', 'account', account, 'ix', ix, 'id', id, 'colIx', colIx, 'rowIx', rowIx, 'tempData', tempData);
+      if (ix > tempData.chunk_ix) {
+        tempData.chunk_ix = ix;
+        tempData.prev_col_ix = 0;
+      }
+
+      if (tempData.chunk_ix != ix) {
+        data.success = false;
+        data.message = `client chunk index '${ix}' is not same as server chunk index '${tempData.chunk_ix}'`;
+      } else {
+        const serverChunkId = tempData.chunk_ids[ix];
+        if (serverChunkId != id) {
+          data.success = false;
+          data.message = `client chunk id '${id}' is not same as server chunk id '${serverChunkId}'`;
+        } else {
+          if (colIx > tempData.prev_col_ix) {
+            tempData.prev_col_ix = colIx;
+          }
+          /**
+           * allow both prev_col_ix and prev_col_ix-1 because it's possible to
+           * jump between two rewards.
+           */
+          if ((colIx == tempData.prev_col_ix) || (colIx == tempData.prev_col_ix-1)) {
+            if (chunksById[id] !== undefined) {
+              const chunk = chunksById[id];
+              // console.log('increment_score', 'chunk', chunk);
+              if (chunk[colIx] !== undefined) {
+                const col = chunk[colIx];
+                // console.log('increment_score', 'col', col);
+                const value = col[rowIx];
+                switch (value) {
+                  case REWARD_IX:
+                    // console.log('increment_score', 'accountData.score', accountData.score);
+                    tempData.score++;
+                    data.success = true;
+                    data.message = 'reward';
+                    break;
+                  case PENALTY_IX:
+                  // console.log('increment_score', 'penalty', 'tempData.score', tempData.score);
+                    tempData.score = 0;
+                    data.success = true;
+                    data.message = 'penalty';
+                    break;
+                  default:
+                    data.success = false;
+                    data.message = `in chunk '${ix}', client value '${value}' is not a penalty '${PENALTY_IX}' or a reward '${REWARD_IX}'`;
+                }
+              } else {
+                data.success = false;
+                data.message = `in chunk '${ix}', client col_ix '${colIx}' not found in server chunk of length ${chunk.length}`;
+              }
+            } else {
+              data.success = false;
+              data.message = `in chunk '${ix}', client chunk_id '${id}' not found in server chunk_ids ${Object.keys(chunksById)}`;
+            }
+          } else {
+            data.success = false;
+            data.message = `in chunk '${ix}', client col_ix '${colIx}' is not server col_ix '${tempData.prev_col_ix}'`;
+          }
         }
       }
     }
-    const data = {};
+
+    if (!data.success) {
+      console.log(dateUtil.getDate(), 'increment_score', 'error', data.message, req.query);
+    }
+
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
   });
@@ -198,23 +260,53 @@ const initWebServer = async () => {
   app.get('/score', async (req, res) => {
     const ip = ipUtil.getIp(req);
     const account = req.query.account;
-    const tempData = getTempData(account, ip);
     const data = {};
-    data.tempScore = tempData.score;
-    data.finalScore = await bananojsCacheUtil.getScore(account);
+    data.success = false;
+    data.message = 'unknown error';
+    if (account == undefined) {
+      data.success = false;
+      data.message = 'account missing from request';
+    } else {
+      data.success = true;
+      data.message = 'score';
+      const tempData = getTempData(account, ip);
+      data.tempScore = tempData.score;
+      data.finalScore = await bananojsCacheUtil.getScore(account);
+    }
+
+    if (!data.success) {
+      console.log(dateUtil.getDate(), 'score', 'error', data.message, req.query);
+    }
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
   });
 
   app.get('/board', async (req, res) => {
+    const ip = ipUtil.getIp(req);
     const account = req.query.account;
     const data = {};
-    data.chunk_ids = [];
-    for (let x = 0; x < config.numberOfChunksPerBoard; x++) {
-      data.chunk_ids.push(randomUtil.getRandomArrayElt(chunkIds));
+    data.success = false;
+    data.message = 'unknown error';
+    if (account == undefined) {
+      data.success = false;
+      data.message = 'account missing from request';
+    } else {
+      data.success = true;
+      data.message = 'board';
+      data.chunk_ids = [];
+      for (let x = 0; x < config.numberOfChunksPerBoard; x++) {
+        data.chunk_ids.push(randomUtil.getRandomArrayElt(chunkIds));
+      }
+      const tempData = getTempData(account, ip);
+      tempData.chunk_ids = data.chunk_ids;
+      tempData.chunk_ix = 0;
+      tempData.prev_col_ix = -1;
+      // console.log(dateUtil.getDate(), 'board', 'account', account, 'tempData', tempData);
     }
-    const tempData = getTempData(account);
-    tempData.chunk_ids = data.chunk_ids;
+
+    if (!data.success) {
+      console.log(dateUtil.getDate(), 'board', 'error', data.message, req.query);
+    }
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
   });
