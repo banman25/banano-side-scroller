@@ -219,9 +219,16 @@ const initWebServer = async () => {
                 switch (value) {
                   case REWARD_IX:
                     // console.log('increment_score', 'accountData.score', accountData.score);
-                    tempData.score++;
-                    data.success = true;
-                    data.message = 'reward';
+                    const rewardKey = `chunk:${ix};col:${colIx};row:${rowIx}`;
+                    if (tempData.reward_set.has(rewardKey)) {
+                      data.success = false;
+                      data.message = `in chunk '${ix}', reward key '${rewardKey}' was already claimed.'`;
+                    } else {
+                      tempData.reward_set.add(rewardKey);
+                      tempData.score++;
+                      data.success = true;
+                      data.message = 'reward';
+                    }
                     break;
                   case PENALTY_IX:
                   // console.log('increment_score', 'penalty', 'tempData.score', tempData.score);
@@ -250,7 +257,7 @@ const initWebServer = async () => {
     }
 
     if (!data.success) {
-      console.log(dateUtil.getDate(), 'increment_score', 'error', data.message, req.query);
+      console.log(dateUtil.getDate(), 'increment_score', 'error', data.message, JSON.stringify(req.query));
     }
 
     res.setHeader('Content-Type', 'application/json');
@@ -275,7 +282,7 @@ const initWebServer = async () => {
     }
 
     if (!data.success) {
-      console.log(dateUtil.getDate(), 'score', 'error', data.message, req.query);
+      console.log(dateUtil.getDate(), 'score', 'error', data.message, JSON.stringify(req.query));
     }
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
@@ -301,11 +308,12 @@ const initWebServer = async () => {
       tempData.chunk_ids = data.chunk_ids;
       tempData.chunk_ix = 0;
       tempData.prev_col_ix = -1;
+      tempData.reward_set = new Set();
       // console.log(dateUtil.getDate(), 'board', 'account', account, 'tempData', tempData);
     }
 
     if (!data.success) {
-      console.log(dateUtil.getDate(), 'board', 'error', data.message, req.query);
+      console.log(dateUtil.getDate(), 'board', 'error', data.message, JSON.stringify(req.query));
     }
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));

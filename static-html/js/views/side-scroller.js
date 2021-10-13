@@ -1,6 +1,7 @@
 const BACKGROUND_WIDTH = 1000;
 const BACKGROUND_HEIGHT = 700;
 const ASSET_INTERSECT_HEIGHT = 10;
+const PENALTY_SIZE = 85;
 const ASSET_SIZE = 75;
 const MOVE_DX = 25;
 const OBSTACLE_MAX_Y = BACKGROUND_HEIGHT - ASSET_SIZE;
@@ -36,7 +37,9 @@ const assetsHrefs = [
   REWARD_HREF,
 ];
 
-let score = 'loading...';
+const SCORE_LOADING = 'loading...';
+
+let score = SCORE_LOADING;
 let remaining = 0;
 let captchaDisplayed = false;
 let boardLoaded = false;
@@ -125,7 +128,6 @@ const onLoad = () => {
         remaining--;
         if (remaining == 0) {
           showCaptcha();
-          loadBoard(groupSvgElt);
         } else {
           moveBackground();
           moveObstacle();
@@ -169,8 +171,8 @@ const incrementScore = async (rewardElt) => {
   // console.log('incrementScore', responseJson);
   if (!responseJson.success) {
     displayErrorMessage(responseJson.message);
-  } else {
-    displayErrorMessage();
+  // } else {
+    // displayErrorMessage();
   }
   await loadScore();
 };
@@ -399,7 +401,7 @@ const moveForegroundDown = async () => {
     });
     for (let penaltyEltIx = 0; penaltyEltIx < penaltyElts.length; penaltyEltIx++) {
       const penaltyElt = penaltyElts[penaltyEltIx];
-      if (intersect(penaltyElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, ASSET_SIZE)) {
+      if (intersect(penaltyElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, PENALTY_SIZE)) {
         moveDown = false;
         penaltyJump = true;
         penlatyJumpElt = penaltyElt;
@@ -414,8 +416,11 @@ const moveForegroundDown = async () => {
       set(foregroundElt, 'y', FOREGROUND_MAX_Y);
     }
     if (penaltyJump) {
-      await incrementScore(penlatyJumpElt);
       moveUp();
+      if ((!score.startsWith('0')) && (score != SCORE_LOADING)) {
+        score == SCORE_LOADING;
+        incrementScore(penlatyJumpElt);
+      }
     }
   }
 };
