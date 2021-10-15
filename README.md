@@ -19,3 +19,5 @@
     npm run screenrestart;
 
 ### todo
+
+    add score page. shows hash of account+ip+hashSecret and then total+temp score.

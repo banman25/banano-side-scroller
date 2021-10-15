@@ -165,7 +165,7 @@ const initWebServer = async () => {
       if (asset.file === undefined) {
         asset.file = asset.img;
       }
-      const url = `${config.dataPackUrl}/static-html/${asset.dir}/${asset.file}`;
+      const url = `${config.dataPackUrl}/${asset.dir}/${asset.file}`;
       res.redirect(302, url);
     });
   });
