@@ -18,5 +18,4 @@
     npm i;   
     npm audit fix;
     rm screenlog.0;
-    cp -r docs/sample-data-pack/* data/;
     npm run screenrestart;
