@@ -105,7 +105,7 @@ const onLoad = () => {
     addChildSvgElement(svgElt, 'image', {
       'y': '0',
       'x': x,
-      'width': BACKGROUND_WIDTH,
+      'width': BACKGROUND_IMAGE_WIDTH,
       'height': BACKGROUND_HEIGHT,
       'fill': 'none',
       'stroke': 'none',
