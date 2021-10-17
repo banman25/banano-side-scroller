@@ -37,6 +37,17 @@ const assetsHrefs = [
   REWARD_HREF,
 ];
 
+const allHrefs = [
+  MONKEY_HREF,
+  REWARD_HREF,
+  PENALTY_HREF,
+  STATIC_BACKGROUND_HREF,
+  MOVING_BACKGROUND_HREF,
+  'background/tipbot',
+  'background/donations',
+  'ground/ground',
+];
+
 const SCORE_LOADING = 'loading...';
 
 let score = SCORE_LOADING;
@@ -58,7 +69,22 @@ const onLoad = () => {
       body: `{"data_pack": "${event.target.value}"}`,
     });
     const responseJson = await response.json();
-    if (!responseJson.success) {
+    // console.log('data_pack', responseJson);
+    if (responseJson.success) {
+      const reloadImg = async (url) => {
+        // console.log('data_pack', 'reloadImg', url);
+        await fetch(url, {cache: 'reload', mode: 'no-cors'});
+        const images = document.body.querySelectorAll(`img[src='${url}']`);
+        images.forEach((img) => {
+          img.src = url;
+        });
+      };
+
+      for (let ix = 0; ix < allHrefs.length; ix++) {
+        const href = allHrefs[ix];
+        await reloadImg(href);
+      }
+    } else {
       displayErrorMessage(responseJson.message);
     }
   });

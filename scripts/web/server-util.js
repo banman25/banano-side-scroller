@@ -192,6 +192,7 @@ const initWebServer = async () => {
         const dataPack = config.dataPacks[dataPackIx];
         if (dataPack.name == dataPackName) {
           const url = `${dataPack.url}/${asset.dir}/${asset.file}`;
+          // console.log('dataPackName', dataPackName, url);
           res.redirect(302, url);
           return;
         }
@@ -439,10 +440,10 @@ const setDataPackCookie = (res, dataPack) => {
 
 const getDataPackCookie = (req) => {
   let dataPack;
-  if (req.signedCookies.dataPack === undefined) {
+  if (req.signedCookies.data_pack === undefined) {
     dataPack = config.defaultDataPack;
   } else {
-    dataPack = req.signedCookies.dataPack;
+    dataPack = req.signedCookies.data_pack;
   }
   return dataPack;
 };
