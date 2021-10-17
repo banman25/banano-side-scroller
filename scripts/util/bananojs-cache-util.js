@@ -133,7 +133,7 @@ const getAndClearAllScores = async () => {
         const data = fs.readFileSync(accountFile, 'UTF-8');
         allScores.push({
           account:file,
-          score:data.score,
+          score: JSON.parse(data).score,
         });
         fs.unlinkSync(accountFile);
       })
