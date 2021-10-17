@@ -16,6 +16,7 @@ const dateUtil = require('../util/date-util.js');
 const ipUtil = require('../util/ip-util.js');
 const bmCaptchaUtil = require('../util/bm-captcha-util.js');
 const bananojsCacheUtil = require('../util/bananojs-cache-util.js');
+const paymentUtil = require('../util/payment-util.js');
 
 // constants
 const REWARD_IX = 2;
@@ -171,7 +172,9 @@ const initWebServer = async () => {
     const callback = async (account, success) => {
       const tempData = getTempData(account, ip);
       if (success) {
-        await bananojsCacheUtil.incrementScore(account, tempData.score);
+        if (!await paymentUtil.isSessionClosed()) {
+          await bananojsCacheUtil.incrementScore(account, tempData.score);
+        }
       }
       tempData.score = 0;
     };
@@ -242,10 +245,15 @@ const initWebServer = async () => {
 
     const data = {};
     data.success = false;
+    data.session_open = true;
     data.message = 'unknown error';
     if (account == undefined) {
       data.success = false;
       data.message = 'account missing from request';
+    } else if (await paymentUtil.isSessionClosed()) {
+      data.success = false;
+      data.session_open = false;
+      data.message = 'session closed';
     } else {
       const tempData = getTempData(account, ip);
       // console.log(dateUtil.getDate(), 'increment_score', 'account', account, 'ix', ix, 'id', id, 'colIx', colIx, 'rowIx', rowIx, 'tempData', tempData);
@@ -255,12 +263,10 @@ const initWebServer = async () => {
       }
 
       if (tempData.chunk_ix != ix) {
-        data.success = false;
         data.message = `client chunk index '${ix}' is not same as server chunk index '${tempData.chunk_ix}'`;
       } else {
         const serverChunkId = tempData.chunk_ids[ix];
         if (serverChunkId != id) {
-          data.success = false;
           data.message = `client chunk id '${id}' is not same as server chunk id '${serverChunkId}'`;
         } else {
           if (colIx > tempData.prev_col_ix) {
@@ -283,7 +289,6 @@ const initWebServer = async () => {
                     // console.log('increment_score', 'accountData.score', accountData.score);
                     const rewardKey = `chunk:${ix};col:${colIx};row:${rowIx}`;
                     if (tempData.reward_set.has(rewardKey)) {
-                      data.success = false;
                       data.message = `in chunk '${ix}', reward key '${rewardKey}' was already claimed.'`;
                     } else {
                       tempData.reward_set.add(rewardKey);
@@ -299,19 +304,15 @@ const initWebServer = async () => {
                     data.message = 'penalty';
                     break;
                   default:
-                    data.success = false;
                     data.message = `in chunk '${ix}', client value '${value}' is not a penalty '${PENALTY_IX}' or a reward '${REWARD_IX}'`;
                 }
               } else {
-                data.success = false;
                 data.message = `in chunk '${ix}', client col_ix '${colIx}' not found in server chunk of length ${chunk.length}`;
               }
             } else {
-              data.success = false;
               data.message = `in chunk '${ix}', client chunk_id '${id}' not found in server chunk_ids ${Object.keys(chunksById)}`;
             }
           } else {
-            data.success = false;
             data.message = `in chunk '${ix}', client col_ix '${colIx}' is not server col_ix '${tempData.prev_col_ix}'`;
           }
         }

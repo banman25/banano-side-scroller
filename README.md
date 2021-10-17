@@ -23,5 +23,5 @@
 1. add score page. shows hash of account+ip+hashSecret and then total+temp score.
 2. add payment script.
   - pays out 2% of house balance every 24 hours.
-  - splits payment evenly among players, based on the account they use.
+  - splits payment evenly among players, based on the score on the account they use.
   - pauses game while paying out.

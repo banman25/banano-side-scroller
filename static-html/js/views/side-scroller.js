@@ -53,6 +53,7 @@ const SCORE_LOADING = 'loading...';
 let score = SCORE_LOADING;
 let remaining = 0;
 let captchaDisplayed = false;
+let sessionClosed = false;
 let boardLoaded = false;
 let boardLoading = false;
 const captchaDisplayCooldown = 0;
@@ -203,6 +204,7 @@ const incrementScore = async (rewardElt) => {
   // } else {
     // displayErrorMessage();
   }
+  sessionClosed = !responseJson.session_open;
   await loadScore();
 };
 
@@ -311,7 +313,7 @@ const moveRight = () => {
 };
 
 const moveForeground = (x, y) => {
-  if (captchaDisplayed) {
+  if (captchaDisplayed || sessionClosed) {
     displayErrorMessage('cannot move when captcha is displayed');
     return;
   }
@@ -338,7 +340,7 @@ const moveForeground = (x, y) => {
 };
 
 const moveBackground = () => {
-  if (captchaDisplayed) {
+  if (captchaDisplayed || sessionClosed) {
     return;
   }
   const backgroundElts = [...document.getElementsByClassName('background')];
@@ -355,7 +357,7 @@ const moveBackground = () => {
 };
 
 const movePenalty = () => {
-  if (captchaDisplayed) {
+  if (captchaDisplayed || sessionClosed) {
     return;
   }
   const obstacleElts = [...document.getElementsByClassName('penalty')];
@@ -373,7 +375,7 @@ const movePenalty = () => {
 };
 
 const moveObstacle = () => {
-  if (captchaDisplayed) {
+  if (captchaDisplayed || sessionClosed) {
     return;
   }
   const obstacleElts = [...document.getElementsByClassName('obstacle')];
@@ -391,7 +393,7 @@ const moveObstacle = () => {
 };
 
 const moveReward = () => {
-  if (captchaDisplayed) {
+  if (captchaDisplayed || sessionClosed) {
     return;
   }
   const elts = [...document.getElementsByClassName('reward')];
@@ -409,7 +411,7 @@ const moveReward = () => {
 };
 
 const moveForegroundDown = async () => {
-  if (captchaDisplayed) {
+  if (captchaDisplayed || sessionClosed) {
     return;
   }
 
@@ -488,7 +490,7 @@ const intersect = (obstacleElt, foregroundElt, oH, fH, yOffset) => {
 };
 
 const updateScore = async () => {
-  if (captchaDisplayed) {
+  if (captchaDisplayed || sessionClosed) {
     return;
   }
   const scoreElt = document.querySelector('#score');

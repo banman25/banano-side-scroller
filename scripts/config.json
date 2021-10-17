@@ -509,5 +509,8 @@
   "blackMonkeyDataUrl": "",
   "numberOfChunksPerBoard": 10,
   "bananojsCacheDataDir": "data/bananojsCache",
-  "activeTimeMs": 28800000
+  "sessionPayoutDataDir": "data/sessionPayout",
+  "activeTimeMs": 28800000,
+  "sessionDurationMs": 86400000,
+  "sessionPayoutRatio": 0.02
 }

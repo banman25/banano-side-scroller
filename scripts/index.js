@@ -8,6 +8,7 @@ const dateUtil = require('./util/date-util.js');
 const bmCaptchaUtil = require('./util/bm-captcha-util.js');
 const httpsUtil = require('./util/https-util.js');
 const webServerUtil = require('./web/server-util.js');
+const paymentUtil = require('./util/payment-util.js');
 
 // constants
 const config = require('./config.json');
@@ -35,6 +36,7 @@ const init = async () => {
   modules.push(bmCaptchaUtil);
   modules.push(httpsUtil);
   modules.push(webServerUtil);
+  modules.push(paymentUtil);
 
   for (let moduleIx = 0; moduleIx < modules.length; moduleIx++) {
     const item = modules[moduleIx];
