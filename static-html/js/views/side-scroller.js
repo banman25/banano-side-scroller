@@ -71,19 +71,7 @@ const onLoad = () => {
     const responseJson = await response.json();
     // console.log('data_pack', responseJson);
     if (responseJson.success) {
-      const reloadImg = async (url) => {
-        // console.log('data_pack', 'reloadImg', url);
-        await fetch(url, {cache: 'reload', mode: 'no-cors'});
-        const images = document.body.querySelectorAll(`img[src='${url}']`);
-        images.forEach((img) => {
-          img.src = url;
-        });
-      };
-
-      for (let ix = 0; ix < allHrefs.length; ix++) {
-        const href = allHrefs[ix];
-        await reloadImg(href);
-      }
+      location.reload();
     } else {
       displayErrorMessage(responseJson.message);
     }
