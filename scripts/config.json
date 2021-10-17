@@ -512,5 +512,6 @@
   "sessionPayoutDataDir": "data/sessionPayout",
   "activeTimeMs": 28800000,
   "sessionDurationMs": 86400000,
+  "sessionStatusPollTimeMs": 30000,
   "sessionPayoutRatio": 0.02
 }

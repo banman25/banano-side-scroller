@@ -3,8 +3,11 @@
 const fs = require('fs');
 const path = require('path');
 const awaitSemaphore = require('await-semaphore');
+const bananojs = require('@bananocoin/bananojs');
 
 // modules
+const dateUtil = require('./date-util.js');
+const bananojsCacheUtil = require('./bananojs-cache-util.js');
 
 // constants
 
@@ -39,7 +42,7 @@ const deactivate = () => {
 };
 
 const getSessionStartTimeFile = () => {
-  return path.join(config.bananojsCacheDataDir, 'sessionStartTime.txt');
+  return path.join(config.sessionPayoutDataDir, 'sessionStartTime.txt');
 };
 
 const setSessionStartTime = () => {
@@ -59,22 +62,38 @@ const getSessionStartTime = () => {
 };
 
 const isSessionClosed = async () => {
-    const mutexRelease = await mutex.acquire();
-    try {
-      const sessionStartTime = getSessionStartTime();
-      const sessionDuration = BigInt(config.sessionDurationMs);
-      const currentTime = BigInt(Date.now());
-      const currentDuration = currentTime - sessionStartTime;
-      if(currentDuration >= sessionDuration) {
-        return true;
-      }
-    } finally {
-      mutexRelease();
+  const mutexRelease = await mutex.acquire();
+  try {
+    const sessionStartTime = getSessionStartTime();
+    const sessionDuration = BigInt(config.sessionDurationMs);
+    const currentTime = BigInt(Date.now());
+    const currentDuration = currentTime - sessionStartTime;
+    if (currentDuration >= sessionDuration) {
+      return true;
     }
-}
+  } finally {
+    mutexRelease();
+  }
+};
+
+const payEverybodyAndReopenSession = async () => {
+  const scores = await bananojsCacheUtil.getAndClearAllScores();
+  loggingUtil.log(dateUtil.getDate(), 'payment', 'scores.length',
+      scores.length);
+  for (let scoreIx = 0; scoreIx > scores.length; scoreIx++) {
+    const scoreElt = scores[scoreIx];
+    const account = scoreElt.account;
+    const score = scoreElt.score;
+    loggingUtil.log(dateUtil.getDate(), 'payment', 'account',
+        account, 'score', score);
+    // await bananojs.sendBananoWithdrawalFromSeed(seed, seedIx, centralAccount, bananoDecimal);
+  }
+  setSessionStartTime();
+};
 
 exports.init = init;
 exports.deactivate = deactivate;
 exports.isSessionClosed = isSessionClosed;
 exports.getSessionStartTime = getSessionStartTime;
 exports.setSessionStartTime = setSessionStartTime;
+exports.payEverybodyAndReopenSession = payEverybodyAndReopenSession;

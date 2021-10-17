@@ -47,7 +47,17 @@ const init = async () => {
 
   process.on('SIGINT', closeProgram);
 
+  setTimeout(paymentFn, config.sessionStatusPollTimeMs);
+
+
   loggingUtil.log(dateUtil.getDate(), 'SUCCESS init');
+};
+
+const paymentFn = async () => {
+  if (await paymentUtil.isSessionClosed()) {
+    await paymentUtil.payEverybodyAndReopenSession();
+  }
+  setTimeout(paymentFn, config.sessionStatusPollTimeMs);
 };
 
 const deactivate = async () => {

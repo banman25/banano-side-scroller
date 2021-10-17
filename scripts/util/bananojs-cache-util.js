@@ -123,9 +123,31 @@ const getActiveAccountCount = () => {
   return count;
 };
 
+const getAndClearAllScores = async () => {
+  const allScores = [];
+  const mutexRelease = await mutex.acquire();
+  try {
+    if (fs.existsSync(config.bananojsCacheDataDir)) {
+      fs.readdirSync(config.bananojsCacheDataDir).forEach((file) => {
+        const accountFile = path.join(config.bananojsCacheDataDir, file);
+        const data = fs.readFileSync(accountFile, 'UTF-8');
+        allScores.push({
+          account:file,
+          score:data.score,
+        });
+        fs.unlinkSync(accountFile);
+      })
+    }
+  } finally {
+    mutexRelease();
+  }
+  return allScores;
+}
+
 module.exports.init = init;
 module.exports.deactivate = deactivate;
 module.exports.incrementScore = incrementScore;
 module.exports.getScore = getScore;
 module.exports.getTotalAccountCount = getTotalAccountCount;
 module.exports.getActiveAccountCount = getActiveAccountCount;
+module.exports.getAndClearAllScores = getAndClearAllScores;
