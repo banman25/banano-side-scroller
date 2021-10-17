@@ -41,8 +41,16 @@ const init = async (_config, _loggingUtil) => {
   config = _config;
   loggingUtil = _loggingUtil;
 
-  if (config.dataPackUrl.endsWith('/')) {
-    config.dataPackUrl = config.dataPackUrl.substring(0, config.dataPackUrl.length-1);
+  /* istanbul ignore if */
+  if (config.cookieSecret.length == 0) {
+    throw Error('config.cookieSecret is required.');
+  }
+
+  for (let dataPackIx = 0; dataPackIx < config.dataPacks.length; dataPackIx++) {
+    const dataPack = config.dataPacks[dataPackIx];
+    if (dataPack.url.endsWith('/')) {
+      dataPack.url = dataPack.url.substring(0, dataPack.url.length-1);
+    }
   }
 
   loadChunks();
@@ -128,6 +136,20 @@ const initWebServer = async () => {
 
   app.get('/side-scroller', async (req, res) => {
     const data = {};
+    data.data_packs = [];
+
+    const selectedDataPack = getDataPackCookie(req);
+    for (let dataPackIx = 0; dataPackIx < config.dataPacks.length; dataPackIx++) {
+      const dataPack = config.dataPacks[dataPackIx];
+      const elt = {};
+      elt.name = dataPack.name;
+      if (elt.name == selectedDataPack) {
+        elt.selected = 'selected';
+      } else {
+        elt.selected = '';
+      }
+      data.data_packs.push(elt);
+    }
     res.render('side-scroller', data);
   });
 
@@ -161,13 +183,52 @@ const initWebServer = async () => {
   });
 
   config.assets.forEach((asset) => {
+    if (asset.file === undefined) {
+      asset.file = asset.img;
+    }
     app.get(`/${asset.dir}/${asset.img}`, async (req, res) => {
-      if (asset.file === undefined) {
-        asset.file = asset.img;
+      const dataPackName = getDataPackCookie(req);
+      for (let dataPackIx = 0; dataPackIx < config.dataPacks.length; dataPackIx++) {
+        const dataPack = config.dataPacks[dataPackIx];
+        if (dataPack.name == dataPackName) {
+          const url = `${dataPack.url}/${asset.dir}/${asset.file}`;
+          res.redirect(302, url);
+          return;
+        }
       }
-      const url = `${config.dataPackUrl}/${asset.dir}/${asset.file}`;
-      res.redirect(302, url);
+      res.status(404);
+      res.type('text/plain;charset=UTF-8').send('');
     });
+  });
+
+  app.post('/data_pack', async (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    if (req.body.data_pack) {
+      const newDataPack = req.body.data_pack;
+      for (let dataPackIx = 0; dataPackIx < config.dataPacks.length; dataPackIx++) {
+        const dataPack = config.dataPacks[dataPackIx];
+        if (dataPack.name == newDataPack) {
+          setDataPackCookie(res, dataPack.name);
+          const data = {
+            success: true,
+            message: 'set data_pack to:' + dataPack.name,
+          };
+          res.end(JSON.stringify(data));
+          return;
+        }
+      }
+      const data = {
+        success: false,
+        message: 'unknown data_pack name:' + newDataPack,
+      };
+      res.end(JSON.stringify(data));
+    } else {
+      const data = {
+        success: false,
+        message: 'no data_pack',
+      };
+      res.end(JSON.stringify(data));
+    }
   });
 
   app.get('/increment_score', async (req, res) => {
@@ -370,6 +431,20 @@ const initWebServer = async () => {
 
 const setCloseProgramFunction = (fn) => {
   closeProgramFn = fn;
+};
+
+const setDataPackCookie = (res, dataPack) => {
+  res.cookie('data_pack', dataPack, {signed: true});
+};
+
+const getDataPackCookie = (req) => {
+  let dataPack;
+  if (req.signedCookies.dataPack === undefined) {
+    dataPack = config.defaultDataPack;
+  } else {
+    dataPack = req.signedCookies.dataPack;
+  }
+  return dataPack;
 };
 
 // exports

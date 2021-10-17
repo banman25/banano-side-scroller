@@ -490,7 +490,17 @@
       ]
     }
   ],
-  "dataPackUrl": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/static-html/",
+  "defaultDataPack":"basic",
+  "dataPacks": [
+    {
+      "name": "basic",
+      "url": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/static-html/"
+    },
+    {
+      "name": "volcano",
+      "url": "https://volcano.coranos.cc/side-scroller/"
+    }
+  ],
   "web": {
     "port": "8585"
   },

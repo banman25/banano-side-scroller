@@ -1,5 +1,14 @@
 <table class="t_center align_top display_inline_block">
   <tr>
+    <td colspan="3" class="align_top">
+      <select id="data_packs">
+        {{#each data_packs}}
+          <option value='{{name}}' {{selected}}>{{name}}</option>
+        {{/each}}
+      </select>
+    </td>
+  </tr>
+  <tr>
     <td colspan="3" id="side_scroller" class="align_top">
     </td>
   </tr>

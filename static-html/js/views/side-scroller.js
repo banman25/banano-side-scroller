@@ -48,6 +48,21 @@ const captchaDisplayCooldown = 0;
 
 const onLoad = () => {
   loadAccount();
+  const dataPacksElt = document.querySelector('#data_packs');
+  dataPacksElt.addEventListener('change', async (event) => {
+    const response = await fetch('/data_pack', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: `{"data_pack": "${event.target.value}"}`,
+    });
+    const responseJson = await response.json();
+    if (!responseJson.success) {
+      displayErrorMessage(responseJson.message);
+    }
+  });
+
   const mainElt = document.querySelector('#side_scroller');
   clear(mainElt);
   bmcaptcha.init('#side_scroller', captchaClicked);
