@@ -80,7 +80,7 @@ const payEverybodyAndReopenSession = async () => {
   const scores = await bananojsCacheUtil.getAndClearAllScores();
   loggingUtil.log(dateUtil.getDate(), 'payment', 'scores.length',
       scores.length);
-  for (let scoreIx = 0; scoreIx > scores.length; scoreIx++) {
+  for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
     const scoreElt = scores[scoreIx];
     const account = scoreElt.account;
     const score = scoreElt.score;
