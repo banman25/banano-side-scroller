@@ -179,12 +179,27 @@ const loadAccount = () => {
     window.localStorage.account = BURN_ACCOUNT;
   }
   accountElt.value = window.localStorage.account;
+  updateAccountColor();
 };
 
 const saveAccount = () => {
   const accountElt = document.querySelector('#account');
   window.localStorage.account = accountElt.value;
+  updateAccountColor();
 };
+
+const updateAccount = () => {
+  saveAccount();
+}
+
+const updateAccountColor = () => {
+  const accountElt = document.querySelector('#account');
+  if(accountElt.value == BURN_ACCOUNT) {
+    accountElt.className = 'bg_pink'
+  } else {
+    accountElt.className = 'bg_white';
+  }
+}
 
 const incrementScore = async (rewardElt) => {
   const ix = rewardElt.dataset.chunkIx;

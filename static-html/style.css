@@ -154,16 +154,28 @@ button {
   height: 110px;
 }
 
+.bg_pink {
+  background-color: pink;
+}
+
+.bg_yellow {
+  background-color: yellow;
+}
+
+.bg_white {
+  background-color: white;
+}
+
 #side_scroller {
   position: relative;
 }
 
 #game {
-  z-index:0;
+  z-index: 0;
 }
 
 #bm_captcha {
-  z-index:1;
+  z-index: 1;
   position: absolute;
   top: 0;
   right: 0;
