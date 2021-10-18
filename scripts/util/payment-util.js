@@ -51,6 +51,20 @@ const getBigIntMax = (...args) => {
   return args.reduce((m, e) => e > m ? e : m);
 };
 
+const msToTime = (duration) => {
+  duration = Number(duration);
+  const milliseconds = Math.floor((duration % 1000) / 100);
+  let seconds = Math.floor((duration / 1000) % 60);
+  let minutes = Math.floor((duration / (1000 * 60)) % 60);
+  let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+  hours = (hours < 10) ? '0' + hours : hours;
+  minutes = (minutes < 10) ? '0' + minutes : minutes;
+  seconds = (seconds < 10) ? '0' + seconds : seconds;
+
+  return hours + ':' + minutes + ':' + seconds + '.' + milliseconds;
+};
+
 const getSessionStartTimeFile = () => {
   return path.join(config.sessionPayoutDataDir, 'sessionStartTime.txt');
 };
@@ -91,9 +105,9 @@ const getSessionInfo = async () => {
     sessionInfo.start = sessionStartTime.toString();
     sessionInfo.duration = sessionDuration.toString();
     sessionInfo.remaining = remainingDuration.toString();
-    sessionInfo.remaining_description = new Date(Number(remainingDuration)).toTimeString();
+    sessionInfo.remaining_description = msToTime(remainingDuration);
     sessionInfo.balance_description = walletAccountBalanceDescription;
-    sessionInfo.description = `session prize:${sessionInfo.balance_description} time left:${sessionInfo.remaining_description}`;
+    sessionInfo.description = `Session prize:${sessionInfo.balance_description} time left:${sessionInfo.remaining_description}`;
   } finally {
     mutexRelease();
   }
