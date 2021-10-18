@@ -144,10 +144,10 @@ const getAndClearAllScores = async () => {
   return allScores;
 }
 
-module.exports.init = init;
-module.exports.deactivate = deactivate;
-module.exports.incrementScore = incrementScore;
-module.exports.getScore = getScore;
-module.exports.getTotalAccountCount = getTotalAccountCount;
-module.exports.getActiveAccountCount = getActiveAccountCount;
-module.exports.getAndClearAllScores = getAndClearAllScores;
+exports.init = init;
+exports.deactivate = deactivate;
+exports.incrementScore = incrementScore;
+exports.getScore = getScore;
+exports.getTotalAccountCount = getTotalAccountCount;
+exports.getActiveAccountCount = getActiveAccountCount;
+exports.getAndClearAllScores = getAndClearAllScores;

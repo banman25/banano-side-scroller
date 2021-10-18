@@ -30,6 +30,8 @@ const init = (_config, _loggingUtil) => {
   loggingUtil = _loggingUtil;
   mutex = new awaitSemaphore.Mutex();
 
+  bananojs.setBananodeApiUrl(config.bananodeApiUrl);
+
   if (!fs.existsSync(config.sessionPayoutDataDir)) {
     fs.mkdirSync(config.sessionPayoutDataDir, {recursive: true});
   }
@@ -76,17 +78,65 @@ const isSessionClosed = async () => {
   }
 };
 
+const receivePending = async (representative, seed, seedIx) => {
+  const account = await bananojs.getBananoAccountFromSeed(seed, seedIx);
+  const pendingList = [];
+  let noPending = false;
+  while (!noPending) {
+    const pending = await bananojs.getAccountsPending([account], config.maxPendingBananos, true);
+    if (pending!== undefined) {
+      // loggingUtil.log(dateUtil.getDate(), 'account', account, 'pending', pending);
+      if (pending.error) {
+        noPending = true;
+      } else {
+        const pendingBlocks = pending.blocks[account];
+        const hashes = [...Object.keys(pendingBlocks)];
+        if (hashes.length !== 0) {
+          const hash = hashes[0];
+          const response = await bananojs.receiveBananoDepositsForSeed(seed, seedIx, representative, hash);
+          pendingList.push(response);
+        } else {
+          noPending = true;
+        }
+      }
+    }
+  }
+  loggingUtil.log(dateUtil.getDate(), 'account', account, 'pendingList.length', pendingList.length);
+  return pendingList;
+};
+
+const receiveWalletPending = async () => {
+  await receivePending(config.walletRepresentative, config.walletSeed, config.walletSeedIx);
+};
+
 const payEverybodyAndReopenSession = async () => {
   const scores = await bananojsCacheUtil.getAndClearAllScores();
-  loggingUtil.log(dateUtil.getDate(), 'payment', 'scores.length',
-      scores.length);
+  let maxScore = BigInt(0);
   for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
     const scoreElt = scores[scoreIx];
-    const account = scoreElt.account;
-    const score = scoreElt.score;
-    loggingUtil.log(dateUtil.getDate(), 'payment', 'account',
-        account, 'score', score);
-    // await bananojs.sendBananoWithdrawalFromSeed(seed, seedIx, centralAccount, bananoDecimal);
+    maxScore += BigInt(scoreElt.score);
+  }
+
+  loggingUtil.log(dateUtil.getDate(), 'payment', 'scores.length',
+      scores.length, 'maxScore', maxScore);
+
+  if (maxScore > BigInt(0)) {
+    const account = await bananojs.getBananoAccountFromSeed(config.walletSeed, config.walletSeedIx);
+    const accountInfo = await bananojs.getAccountInfo(account, true);
+    const balance = BigInt(accountInfo.balance);
+    const rawPerScore = balance / maxScore;
+
+    for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
+      const scoreElt = scores[scoreIx];
+      const account = scoreElt.account;
+      const score = scoreElt.score;
+      const bananoRaw = BigInt(score) * rawPerScore;
+      const balanceParts = await bananojs.getBananoPartsFromRaw(bananoRaw);
+      const bananoDecimal = await bananojs.getBananoPartsAsDecimal(balanceParts);
+      loggingUtil.log(dateUtil.getDate(), 'payment', 'account',
+          account, 'score', score, 'bananoDecimal', bananoDecimal);
+      await bananojs.sendBananoWithdrawalFromSeed(config.walletSeed, config.walletSeedIx, account, bananoDecimal);
+    }
   }
   setSessionStartTime();
 };
@@ -97,3 +147,4 @@ exports.isSessionClosed = isSessionClosed;
 exports.getSessionStartTime = getSessionStartTime;
 exports.setSessionStartTime = setSessionStartTime;
 exports.payEverybodyAndReopenSession = payEverybodyAndReopenSession;
+exports.receiveWalletPending = receiveWalletPending;

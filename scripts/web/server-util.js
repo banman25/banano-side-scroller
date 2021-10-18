@@ -47,6 +47,26 @@ const init = async (_config, _loggingUtil) => {
     throw Error('config.cookieSecret is required.');
   }
 
+  /* istanbul ignore if */
+  if (config.walletSeed.length == 0) {
+    throw Error('config.walletSeed is required.');
+  }
+
+  /* istanbul ignore if */
+  if (config.walletSeedIx.length == 0) {
+    throw Error('config.walletSeedIx is required.');
+  }
+
+  /* istanbul ignore if */
+  if (config.walletRepresentative.length == 0) {
+    throw Error('config.walletRepresentative is required.');
+  }
+
+  /* istanbul ignore if */
+  if (config.bananodeApiUrl.length == 0) {
+    throw Error('config.bananodeApiUrl is required.');
+  }
+
   for (let dataPackIx = 0; dataPackIx < config.dataPacks.length; dataPackIx++) {
     const dataPack = config.dataPacks[dataPackIx];
     if (dataPack.url.endsWith('/')) {

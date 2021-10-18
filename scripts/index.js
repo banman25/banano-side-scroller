@@ -47,13 +47,13 @@ const init = async () => {
 
   process.on('SIGINT', closeProgram);
 
-  setTimeout(paymentFn, config.sessionStatusPollTimeMs);
-
+  paymentFn();
 
   loggingUtil.log(dateUtil.getDate(), 'SUCCESS init');
 };
 
 const paymentFn = async () => {
+  await paymentUtil.receiveWalletPending();
   if (await paymentUtil.isSessionClosed()) {
     await paymentUtil.payEverybodyAndReopenSession();
   }

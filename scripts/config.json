@@ -504,8 +504,8 @@
   "web": {
     "port": "8585"
   },
+  "bananodeApiUrl": "",
   "cookieSecret": "",
-  "hashSecret": "",
   "blackMonkeyDataUrl": "",
   "numberOfChunksPerBoard": 10,
   "bananojsCacheDataDir": "data/bananojsCache",
@@ -513,5 +513,9 @@
   "activeTimeMs": 28800000,
   "sessionDurationMs": 86400000,
   "sessionStatusPollTimeMs": 30000,
-  "sessionPayoutRatio": 0.02
+  "sessionPayoutRatio": 0.02,
+  "walletSeed":"",
+  "walletSeedIx":0,
+  "walletRepresentative":"",
+  "maxPendingBananos":10
 }
