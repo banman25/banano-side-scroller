@@ -263,14 +263,17 @@ const initWebServer = async () => {
     const colIx = parseInt(req.query.col_ix, 10);
     const rowIx = parseInt(req.query.row_ix, 10);
 
+    const sessionInfo = await paymentUtil.getSessionInfo();
+
     const data = {};
+    data.session_description = sessionInfo.description;
     data.success = false;
     data.session_open = true;
     data.message = 'unknown error';
     if (account == undefined) {
       data.success = false;
       data.message = 'account missing from request';
-    } else if (await paymentUtil.isSessionClosed()) {
+    } else if (sessionInfo.closed) {
       data.success = false;
       data.session_open = false;
       data.message = 'session closed';

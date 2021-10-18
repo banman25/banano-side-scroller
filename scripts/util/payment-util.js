@@ -10,12 +10,14 @@ const dateUtil = require('./date-util.js');
 const bananojsCacheUtil = require('./bananojs-cache-util.js');
 
 // constants
+const ZERO = BigInt(0);
 
 // variables
 /* eslint-disable no-unused-vars */
 let config;
 let loggingUtil;
 let mutex;
+let walletAccountBalanceDescription;
 /* eslint-enable no-unused-vars */
 
 // functions
@@ -32,6 +34,8 @@ const init = (_config, _loggingUtil) => {
 
   bananojs.setBananodeApiUrl(config.bananodeApiUrl);
 
+  walletAccountBalanceDescription = 'loading...';
+
   if (!fs.existsSync(config.sessionPayoutDataDir)) {
     fs.mkdirSync(config.sessionPayoutDataDir, {recursive: true});
   }
@@ -41,6 +45,10 @@ const deactivate = () => {
   config = undefined;
   loggingUtil = undefined;
   mutex = undefined;
+};
+
+const getBigIntMax = (...args) => {
+  return args.reduce((m, e) => e > m ? e : m);
 };
 
 const getSessionStartTimeFile = () => {
@@ -64,18 +72,32 @@ const getSessionStartTime = () => {
 };
 
 const isSessionClosed = async () => {
+  const sessionInfo = await getSessionInfo();
+  return sessionInfo.closed;
+};
+
+const getSessionInfo = async () => {
   const mutexRelease = await mutex.acquire();
+  const sessionInfo = {};
   try {
     const sessionStartTime = getSessionStartTime();
     const sessionDuration = BigInt(config.sessionDurationMs);
     const currentTime = BigInt(Date.now());
     const currentDuration = currentTime - sessionStartTime;
-    if (currentDuration >= sessionDuration) {
-      return true;
+    const remainingDuration = getBigIntMax(ZERO, sessionDuration-currentDuration);
+    if (remainingDuration <= ZERO) {
+      sessionInfo.closed = true;
     }
+    sessionInfo.start = sessionStartTime.toString();
+    sessionInfo.duration = sessionDuration.toString();
+    sessionInfo.remaining = remainingDuration.toString();
+    sessionInfo.remaining_description = new Date(Number(remainingDuration)).toTimeString();
+    sessionInfo.balance_description = walletAccountBalanceDescription;
+    sessionInfo.description = `session prize:${sessionInfo.balance_description} time left:${sessionInfo.remaining_description}`;
   } finally {
     mutexRelease();
   }
+  return sessionInfo;
 };
 
 const receivePending = async (representative, seed, seedIx) => {
@@ -107,6 +129,15 @@ const receivePending = async (representative, seed, seedIx) => {
 
 const receiveWalletPending = async () => {
   await receivePending(config.walletRepresentative, config.walletSeed, config.walletSeedIx);
+  walletAccountBalanceDescription = await getAccountBalanceDescription(config.walletSeed, config.walletSeedIx);
+};
+
+const getAccountBalanceDescription = async (seed, seedIx) => {
+  const account = await bananojs.getBananoAccountFromSeed(seed, seedIx);
+  const accountInfo = await bananojs.getAccountInfo(account, true);
+  const balanceParts = await bananojs.getBananoPartsFromRaw(accountInfo.balance);
+  const description = await bananojs.getBananoPartsDescription(balanceParts);
+  return description;
 };
 
 const payEverybodyAndReopenSession = async () => {
@@ -144,6 +175,7 @@ const payEverybodyAndReopenSession = async () => {
 exports.init = init;
 exports.deactivate = deactivate;
 exports.isSessionClosed = isSessionClosed;
+exports.getSessionInfo = getSessionInfo;
 exports.getSessionStartTime = getSessionStartTime;
 exports.setSessionStartTime = setSessionStartTime;
 exports.payEverybodyAndReopenSession = payEverybodyAndReopenSession;

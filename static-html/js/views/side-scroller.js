@@ -48,9 +48,10 @@ const allHrefs = [
   'ground/ground',
 ];
 
-const SCORE_LOADING = 'loading...';
+const LOADING = 'loading...';
 
-let score = SCORE_LOADING;
+let score = LOADING;
+let session = LOADING;
 let remaining = 0;
 let captchaDisplayed = false;
 let sessionClosed = false;
@@ -220,6 +221,11 @@ const incrementScore = async (rewardElt) => {
     // displayErrorMessage();
   }
   sessionClosed = !responseJson.session_open;
+  session = responseJson.session_description;
+
+  const sessionElt = document.querySelector('#session');
+  sessionElt.innerText = session;
+
   await loadScore();
 };
 
@@ -463,8 +469,8 @@ const moveForegroundDown = async () => {
     }
     if (penaltyJump) {
       moveUp();
-      if ((!score.startsWith('0')) && (score != SCORE_LOADING)) {
-        score == SCORE_LOADING;
+      if ((!score.startsWith('0')) && (score != LOADING)) {
+        score == LOADING;
         incrementScore(penlatyJumpElt);
       }
     }
