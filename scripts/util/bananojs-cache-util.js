@@ -132,17 +132,17 @@ const getAndClearAllScores = async () => {
         const accountFile = path.join(config.bananojsCacheDataDir, file);
         const data = fs.readFileSync(accountFile, 'UTF-8');
         allScores.push({
-          account:file,
+          account: file,
           score: JSON.parse(data).score,
         });
         fs.unlinkSync(accountFile);
-      })
+      });
     }
   } finally {
     mutexRelease();
   }
   return allScores;
-}
+};
 
 exports.init = init;
 exports.deactivate = deactivate;
