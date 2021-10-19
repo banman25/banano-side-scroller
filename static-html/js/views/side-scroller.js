@@ -260,7 +260,11 @@ const loadScore = async () => {
     method: 'GET',
   });
   const responseJson = await response.json();
-  score = `${responseJson.tempScore}+${responseJson.finalScore}`;
+  if(responseJson.success) {
+    score = `${responseJson.tempScore}+${responseJson.finalScore}`;
+  } else {
+    displayErrorMessage(responseJson.message);
+  }
   await updateScore();
 };
 

@@ -377,11 +377,17 @@ const initWebServer = async () => {
       data.success = false;
       data.message = 'account missing from request';
     } else {
-      data.success = true;
-      data.message = 'score';
-      const tempData = getTempData(account, ip);
-      data.tempScore = tempData.score;
-      data.finalScore = await bananojsCacheUtil.getScore(account);
+      try {
+        const finalScore = await bananojsCacheUtil.getScore(account);
+        data.success = true;
+        data.message = 'score';
+        const tempData = getTempData(account, ip);
+        data.tempScore = tempData.score;
+        data.finalScore = finalScore;
+      } catch (error) {
+        data.success = false;
+        data.message = error.message;
+      }
     }
 
     if (!data.success) {

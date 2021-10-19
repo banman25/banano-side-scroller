@@ -61,6 +61,8 @@ const getScore = async (account) => {
     } finally {
       mutexRelease();
     }
+  } else {
+    throw Error(`account '${account}' does not match regex '${ACCOUNT_STR}'`);
   }
 };
 
