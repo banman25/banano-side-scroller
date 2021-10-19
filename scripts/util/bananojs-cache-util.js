@@ -156,7 +156,7 @@ const getHistogram = async () => {
         const scoreBucket = Math.max(1, Number(score).toString().length);
         const bucket = `Score 1${'0'.repeat(scoreBucket-1)} to 1${'0'.repeat(scoreBucket)}`;
 
-        console.log(dateUtil.getDate(), 'histogram', 'score', score, 'bucket', bucket);
+        // console.log(dateUtil.getDate(), 'histogram', 'score', score, 'bucket', bucket);
 
         if (histogramMap.has(bucket)) {
           const old = histogramMap.get(bucket);
