@@ -43,7 +43,7 @@ const decode = (data) => {
 
 const loadPngChunks = async () => {
   if (fs.existsSync(config.pngChunkDir)) {
-    config.chunks.length = 0;
+    // config.chunks.length = 0;
     const files = fs.readdirSync(config.pngChunkDir);
     for (let fileIx = 0; fileIx < files.length; fileIx++) {
       const fileNm = files[fileIx];
