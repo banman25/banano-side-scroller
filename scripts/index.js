@@ -9,6 +9,7 @@ const bmCaptchaUtil = require('./util/bm-captcha-util.js');
 const httpsUtil = require('./util/https-util.js');
 const webServerUtil = require('./web/server-util.js');
 const paymentUtil = require('./util/payment-util.js');
+const chunkUtil = require('./util/chunk-util.js');
 
 // constants
 const config = require('./config.json');
@@ -32,6 +33,7 @@ const init = async () => {
 
   modules.push(ipUtil);
   modules.push(dateUtil);
+  modules.push(chunkUtil);
   modules.push(bananojsCacheUtil);
   modules.push(bmCaptchaUtil);
   modules.push(httpsUtil);

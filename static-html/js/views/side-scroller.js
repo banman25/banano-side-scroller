@@ -20,7 +20,11 @@ const MONKEY_HREF = 'monkey/monkey';
 
 const REWARD_HREF = 'rewards/banana';
 
-const PENALTY_HREF = 'ground/water';
+const WATER_HREF = 'ground/water';
+
+const GROUND_HREF = 'ground/ground';
+
+const OBSTACLE_HREF = 'ground/obstacle';
 
 const STATIC_BACKGROUND_HREF = 'background/static-background';
 
@@ -32,20 +36,21 @@ const BACKGROUND_OBJECT_HREFS = [
 ];
 
 const assetsHrefs = [
-  'ground/ground',
-  PENALTY_HREF,
+  GROUND_HREF,
+  WATER_HREF,
   REWARD_HREF,
+  OBSTACLE_HREF,
 ];
 
 const allHrefs = [
   MONKEY_HREF,
   REWARD_HREF,
-  PENALTY_HREF,
+  WATER_HREF,
   STATIC_BACKGROUND_HREF,
   MOVING_BACKGROUND_HREF,
   'background/tipbot',
   'background/donations',
-  'ground/ground',
+  GROUND_HREF,
 ];
 
 const LOADING = 'loading...';
@@ -312,7 +317,10 @@ const loadBoard = async (groupSvgElt) => {
             if (href == REWARD_HREF) {
               classNm = 'reward';
             }
-            if (href == PENALTY_HREF) {
+            if (href == WATER_HREF) {
+              classNm = 'penalty';
+            }
+            if (href == OBSTACLE_HREF) {
               classNm = 'penalty';
             }
             addChildSvgElement(groupSvgElt, 'image', {

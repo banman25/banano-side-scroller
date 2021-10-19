@@ -1,6 +1,6 @@
 {
   "name": "side-scroller",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "side-scroller",
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
     "express": "^4.16.4",
     "express-handlebars": "^5.3.4",
     "mkdirp": "^1.0.4",
+    "png-js": "^1.0.0",
     "request": "^2.88.2",
     "socket.io": "^4.3.1",
     "socket.io-client": "^4.3.2"

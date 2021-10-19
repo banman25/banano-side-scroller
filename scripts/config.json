@@ -47,6 +47,12 @@
       "img": "water",
       "file": "water.png",
       "type": "image/png"
+    },
+    {
+      "dir": "ground",
+      "img": "obstacle",
+      "file": "obstacle.png",
+      "type": "image/png"
     }
   ],
   "chunks": [
@@ -490,7 +496,7 @@
       ]
     }
   ],
-  "defaultDataPack":"basic",
+  "defaultDataPack": "basic",
   "dataPacks": [
     {
       "name": "basic",
@@ -514,9 +520,10 @@
   "sessionDurationMs": 86400000,
   "sessionStatusPollTimeMs": 30000,
   "sessionPayoutRatio": 0.02,
-  "sessionPauseTimeMs" : 10000,
-  "walletSeed":"",
-  "walletSeedIx":0,
-  "walletRepresentative":"",
-  "maxPendingBananos":10
+  "sessionPauseTimeMs": 10000,
+  "walletSeed": "",
+  "walletSeedIx": 0,
+  "walletRepresentative": "",
+  "maxPendingBananos": 10,
+  "pngChunkDir": "chunks"
 }
