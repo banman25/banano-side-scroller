@@ -19,6 +19,3 @@
     npm run screenrestart;
 
 ### todo
-
-    1. add version from package.json to UI.
-    2. convert chunks from json to png images.
