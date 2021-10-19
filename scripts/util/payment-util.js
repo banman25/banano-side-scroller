@@ -11,6 +11,7 @@ const bananojsCacheUtil = require('./bananojs-cache-util.js');
 
 // constants
 const ZERO = BigInt(0);
+const ONE_HUNDRED = BigInt(100);
 
 // variables
 /* eslint-disable no-unused-vars */
@@ -169,7 +170,12 @@ const payEverybodyAndReopenSession = async () => {
     const account = await bananojs.getBananoAccountFromSeed(config.walletSeed, config.walletSeedIx);
     const accountInfo = await bananojs.getAccountInfo(account, true);
     const balance = BigInt(accountInfo.balance);
-    const rawPerScore = balance / maxScore;
+    const sessionPayoutRatio = BigInt(parseFloat(config.sessionPayoutRatio)*100);
+    const payoutBalance = (balance * sessionPayoutRatio) / ONE_HUNDRED;
+    const rawPerScore = payoutBalance / maxScore;
+
+    loggingUtil.log(dateUtil.getDate(), 'payment', 'rawPerScore',
+        rawPerScore, 'payoutBalance', payoutBalance);
 
     for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
       const scoreElt = scores[scoreIx];

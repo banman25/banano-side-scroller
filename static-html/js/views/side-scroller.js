@@ -1,4 +1,4 @@
-const BACKGROUND_WIDTH = 1000;
+const BACKGROUND_WIDTH = 700;
 const BACKGROUND_HEIGHT = 700;
 const ASSET_INTERSECT_HEIGHT = 10;
 const PENALTY_SIZE = 85;
@@ -51,13 +51,15 @@ const allHrefs = [
 const LOADING = 'loading...';
 
 let score = LOADING;
-let session = LOADING;
 let remaining = 0;
 let captchaDisplayed = false;
 let sessionClosed = false;
 let boardLoaded = false;
 let boardLoading = false;
 const captchaDisplayCooldown = 0;
+
+const SESSION_CLOSED_COUNTDOWN_MAX = 300;
+let sessionClosedCountdown = SESSION_CLOSED_COUNTDOWN_MAX;
 
 const onLoad = () => {
   loadAccount();
@@ -156,16 +158,26 @@ const onLoad = () => {
   setInterval(() => {
     if (!captchaDisplayed) {
       if (boardLoaded) {
-        remaining--;
-        if (remaining == 0) {
-          showCaptcha();
+        if (sessionClosed) {
+          if (sessionClosedCountdown > 0) {
+            sessionClosedCountdown--;
+            const sessionElt = document.querySelector('#session');
+            sessionElt.innerHTML = '<span class="bg_pink">Session closed countdown:' + sessionClosedCountdown + "</span>";
+          } else {
+            location.reload();
+          }
         } else {
-          moveBackground();
-          moveObstacle();
-          moveReward();
-          movePenalty();
-          moveForegroundDown();
-          updateScore();
+          remaining--;
+          if (remaining == 0) {
+            showCaptcha();
+          } else {
+            moveBackground();
+            moveObstacle();
+            moveReward();
+            movePenalty();
+            moveForegroundDown();
+            updateScore();
+          }
         }
       } else {
         loadBoard(groupSvgElt);
@@ -191,16 +203,16 @@ const saveAccount = () => {
 
 const updateAccount = () => {
   saveAccount();
-}
+};
 
 const updateAccountColor = () => {
   const accountElt = document.querySelector('#account');
-  if(accountElt.value == BURN_ACCOUNT) {
-    accountElt.className = 'bg_pink'
+  if (accountElt.value == BURN_ACCOUNT) {
+    accountElt.className = 'bg_pink';
   } else {
     accountElt.className = 'bg_white';
   }
-}
+};
 
 const incrementScore = async (rewardElt) => {
   const ix = rewardElt.dataset.chunkIx;
@@ -221,10 +233,9 @@ const incrementScore = async (rewardElt) => {
     // displayErrorMessage();
   }
   sessionClosed = !responseJson.session_open;
-  session = responseJson.session_description;
 
   const sessionElt = document.querySelector('#session');
-  sessionElt.innerText = session;
+  sessionElt.innerText = responseJson.session_description;
 
   await loadScore();
 };
