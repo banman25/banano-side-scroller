@@ -514,6 +514,7 @@
   "sessionDurationMs": 86400000,
   "sessionStatusPollTimeMs": 30000,
   "sessionPayoutRatio": 0.02,
+  "sessionPauseTimeMs" : 10000,
   "walletSeed":"",
   "walletSeedIx":0,
   "walletRepresentative":"",

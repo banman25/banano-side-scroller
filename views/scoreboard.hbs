@@ -1,0 +1,35 @@
+<table class="t_center align_top display_inline_block">
+  <tr>
+    <td colspan="3" class="align_top">
+      <a href="/" class="small">Side Scroller</a>
+    </td>
+  </tr>
+  <tr>
+    <td class="align_top">
+      {{wallet_account}}
+      <p>
+        Number of Entries: {{histogram.length}}
+      <p>
+      <table class="t_center align_top display_inline_block bordered">
+        {{#if histogram}}
+          <tr>
+            <td class="align_top">Bucket</td>
+            <td class="align_top">Count</td>
+          </tr>
+        {{/if}}
+        {{#each histogram}}
+          <tr>
+            <td class="align_top">{{bucket}}</td>
+            <td class="align_top">{{count}}</td>
+          </tr>
+        {{else}}
+          <tr>
+            <td class="align_top">No Entries</td>
+          </tr>
+        {{/each}}
+      </table>
+    </td>
+  </tr>
+</table>
+<script src="js/bm-captcha.js"></script>
+<script src="js/views/side-scroller.js"></script>

@@ -144,6 +144,45 @@ const getAndClearAllScores = async () => {
   return allScores;
 };
 
+const getHistogram = async () => {
+  const histogramMap = new Map();
+  const mutexRelease = await mutex.acquire();
+  try {
+    if (fs.existsSync(config.bananojsCacheDataDir)) {
+      fs.readdirSync(config.bananojsCacheDataDir).forEach((file) => {
+        const accountFile = path.join(config.bananojsCacheDataDir, file);
+        const data = fs.readFileSync(accountFile, 'UTF-8');
+        const score = JSON.parse(data).score;
+        const scoreBucket = Math.max(1, Number(score).toString().length);
+        const bucket = `Score 1${'0'.repeat(scoreBucket-1)} to 1${'0'.repeat(scoreBucket)}`;
+
+        console.log(dateUtil.getDate(), 'histogram', 'score', score, 'bucket', bucket);
+
+        if (histogramMap.has(bucket)) {
+          const old = histogramMap.get(bucket);
+          histogramMap.set(bucket, old+2);
+        } else {
+          histogramMap.set(bucket, 1);
+        }
+      });
+    }
+  } finally {
+    mutexRelease();
+  }
+  const histogram = [];
+  for (const [bucket, count] of histogramMap) {
+    histogram.push({
+      bucket: bucket,
+      count: count,
+    });
+  }
+
+  // console.log(dateUtil.getDate(), 'histogramMap', histogramMap);
+  // console.log(dateUtil.getDate(), 'histogram', JSON.stringify(histogram));
+
+  return histogram;
+};
+
 exports.init = init;
 exports.deactivate = deactivate;
 exports.incrementScore = incrementScore;
@@ -151,3 +190,4 @@ exports.getScore = getScore;
 exports.getTotalAccountCount = getTotalAccountCount;
 exports.getActiveAccountCount = getActiveAccountCount;
 exports.getAndClearAllScores = getAndClearAllScores;
+exports.getHistogram = getHistogram;

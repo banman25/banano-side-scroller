@@ -58,10 +58,9 @@ let boardLoaded = false;
 let boardLoading = false;
 const captchaDisplayCooldown = 0;
 
-const SESSION_CLOSED_COUNTDOWN_MAX = 300;
-let sessionClosedCountdown = SESSION_CLOSED_COUNTDOWN_MAX;
+let sessionClosedCountdown = 0;
 
-const onLoad = () => {
+const onLoad = async () => {
   loadAccount();
   const dataPacksElt = document.querySelector('#data_packs');
   dataPacksElt.addEventListener('change', async (event) => {
@@ -155,6 +154,20 @@ const onLoad = () => {
     'href': MONKEY_HREF,
   });
 
+  const sessionPauseTimeCallback = async () => {
+    const response = await fetch('/session_pause_time', {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    const responseJson = await response.json();
+    // console.log('session_pause_time', responseJson);
+    sessionClosedCountdown = responseJson.pause_time;
+  };
+
+  await sessionPauseTimeCallback();
+
   setInterval(() => {
     if (!captchaDisplayed) {
       if (boardLoaded) {
@@ -162,7 +175,7 @@ const onLoad = () => {
           if (sessionClosedCountdown > 0) {
             sessionClosedCountdown--;
             const sessionElt = document.querySelector('#session');
-            sessionElt.innerHTML = '<span class="bg_pink">Session closed countdown:' + sessionClosedCountdown + "</span>";
+            sessionElt.innerHTML = '<span class="bg_pink">Session closed countdown:' + sessionClosedCountdown + '</span>';
           } else {
             location.reload();
           }

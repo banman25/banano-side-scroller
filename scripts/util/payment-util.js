@@ -138,7 +138,9 @@ const receivePending = async (representative, seed, seedIx) => {
       }
     }
   }
-  loggingUtil.log(dateUtil.getDate(), 'account', account, 'pendingList.length', pendingList.length);
+  if (pendingList.length > 0) {
+    loggingUtil.log(dateUtil.getDate(), 'account', account, 'pendingList.length', pendingList.length);
+  }
   return pendingList;
 };
 
@@ -194,6 +196,11 @@ const payEverybodyAndReopenSession = async () => {
   setSessionStartTime();
 };
 
+const getWalletAccount = async () => {
+  const account = await bananojs.getBananoAccountFromSeed(config.walletSeed, config.walletSeedIx);
+  return account;
+};
+
 exports.init = init;
 exports.deactivate = deactivate;
 exports.isSessionClosed = isSessionClosed;
@@ -202,3 +209,4 @@ exports.getSessionStartTime = getSessionStartTime;
 exports.setSessionStartTime = setSessionStartTime;
 exports.payEverybodyAndReopenSession = payEverybodyAndReopenSession;
 exports.receiveWalletPending = receiveWalletPending;
+exports.getWalletAccount = getWalletAccount;

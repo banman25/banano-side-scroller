@@ -158,6 +158,20 @@ const initWebServer = async () => {
     res.redirect(302, '/');
   });
 
+  app.get('/scoreboard', async (req, res) => {
+    const data = {};
+
+    const walletAccount = await paymentUtil.getWalletAccount();
+    data.wallet_account = walletAccount;
+
+    const histogram = await bananojsCacheUtil.getHistogram();
+    data.histogram = histogram;
+
+    // console.log(dateUtil.getDate(), 'scoreboard', JSON.stringify(data));
+
+    res.render('scoreboard', data);
+  });
+
   app.get('/side-scroller', async (req, res) => {
     const data = {};
     data.data_packs = [];
@@ -408,7 +422,6 @@ const initWebServer = async () => {
     res.end(JSON.stringify(data));
   });
 
-
   app.get('/chunk', async (req, res) => {
     const id = req.query.id;
     const data = {};
@@ -423,6 +436,13 @@ const initWebServer = async () => {
     const filePath = path.join('node_modules', '@bananocoin', 'bananojs', 'dist', 'bananocoin-bananojs.js');
     const data = fs.readFileSync(filePath);
     res.type('application/javascript').send(data);
+  });
+
+  app.get('/session_pause_time', async (req, res) => {
+    const data = {};
+    data.pause_time = config.sessionPauseTimeMs;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(data));
   });
 
   app.get('/favicon.ico', async (req, res) => {

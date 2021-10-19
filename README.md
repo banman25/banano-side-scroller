@@ -19,6 +19,3 @@
     npm run screenrestart;
 
 ### todo
-
-1. add score page. shows hash of account+ip+hashSecret and then total+temp score.
-2. make session pause timeout configurable.
