@@ -105,15 +105,16 @@ const getTempData = (account, ip) => {
   if (!tempDataByAccount.has(account)) {
     const accountData = {};
     accountData.tempScoreByIp = new Map();
-    if (!accountData.tempScoreByIp.has(ip)) {
-      const ipData = {};
-      ipData.score = 0;
-      // console.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'ipData', ipData);
-      accountData.tempScoreByIp.set(ip, ipData);
-    }
     tempDataByAccount.set(account, accountData);
   }
-  const retval = tempDataByAccount.get(account).tempScoreByIp.get(ip);
+  const accountData = tempDataByAccount.get(account);
+  if (!accountData.tempScoreByIp.has(ip)) {
+    const ipData = {};
+    ipData.score = 0;
+    // console.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'ipData', ipData);
+    accountData.tempScoreByIp.set(ip, ipData);
+  }
+  const retval = accountData.tempScoreByIp.get(ip);
   if (retval == undefined) {
     console.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'retval', retval);
   }
