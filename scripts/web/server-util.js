@@ -114,7 +114,9 @@ const getTempData = (account, ip) => {
     tempDataByAccount.set(account, accountData);
   }
   const retval = tempDataByAccount.get(account).tempScoreByIp.get(ip);
-  // console.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'retval', retval);
+  if (retval == undefined) {
+    console.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'retval', retval);
+  }
   return retval;
 };
 
