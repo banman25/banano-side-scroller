@@ -157,7 +157,7 @@ const getAccountBalanceDescription = async (seed, seedIx) => {
 
 const payEverybodyAndReopenSession = async () => {
   const scores = await bananojsCacheUtil.getAndClearAllScores();
-  let maxScore = BigInt(0);
+  let maxScore = ZERO;
   for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
     const scoreElt = scores[scoreIx];
     maxScore += BigInt(scoreElt.score);
@@ -166,7 +166,7 @@ const payEverybodyAndReopenSession = async () => {
   loggingUtil.log(dateUtil.getDate(), 'payment', 'scores.length',
       scores.length, 'maxScore', maxScore);
 
-  if (maxScore > BigInt(0)) {
+  if (maxScore > ZERO) {
     const account = await bananojs.getBananoAccountFromSeed(config.walletSeed, config.walletSeedIx);
     const accountInfo = await bananojs.getAccountInfo(account, true);
     const balance = BigInt(accountInfo.balance);
@@ -184,9 +184,11 @@ const payEverybodyAndReopenSession = async () => {
       const bananoRaw = BigInt(score) * rawPerScore;
       const balanceParts = await bananojs.getBananoPartsFromRaw(bananoRaw);
       const bananoDecimal = await bananojs.getBananoPartsAsDecimal(balanceParts);
-      loggingUtil.log(dateUtil.getDate(), 'payment', 'account',
-          account, 'score', score, 'bananoDecimal', bananoDecimal);
-      await bananojs.sendBananoWithdrawalFromSeed(config.walletSeed, config.walletSeedIx, account, bananoDecimal);
+      if (bananoRaw > ZERO) {
+        loggingUtil.log(dateUtil.getDate(), 'payment', 'account',
+            account, 'score', score, 'bananoDecimal', bananoDecimal, 'bananoRaw', bananoRaw);
+        await bananojs.sendBananoWithdrawalFromSeed(config.walletSeed, config.walletSeedIx, account, bananoDecimal);
+      }
     }
   }
   setSessionStartTime();
