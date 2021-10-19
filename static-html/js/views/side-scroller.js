@@ -163,7 +163,7 @@ const onLoad = async () => {
     });
     const responseJson = await response.json();
     // console.log('session_pause_time', responseJson);
-    sessionClosedCountdown = responseJson.pause_time;
+    sessionClosedCountdown = parseInt(responseJson.pause_time, 0) / INTERVAL;
   };
 
   await sessionPauseTimeCallback();
