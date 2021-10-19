@@ -235,11 +235,11 @@ const updateAccountColor = () => {
 const incrementScore = async (rewardElt) => {
   const ix = rewardElt.dataset.chunkIx;
   const id = rewardElt.dataset.chunkId;
-  const col_ix = rewardElt.dataset.chunkColIx;
-  const row_ix = rewardElt.dataset.chunkRowIx;
+  const colIx = rewardElt.dataset.chunkColIx;
+  const rowIx = rewardElt.dataset.chunkRowIx;
   const account = window.localStorage.account;
   const url = '/increment_score?' +
-   `account=${account}&id=${id}&ix=${ix}&col_ix=${col_ix}&row_ix=${row_ix}`;
+   `account=${account}&id=${id}&ix=${ix}&col_ix=${colIx}&row_ix=${rowIx}`;
   const response = await fetch(url, {
     method: 'GET',
   });
