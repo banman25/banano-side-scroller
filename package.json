@@ -7,7 +7,7 @@
     "url": "git+https://github.com/BananoCoin/side-scroller.git"
   },
   "scripts": {
-    "eslint": "eslint --fix 'scripts/**/*.js'",
+    "eslint": "eslint --fix 'scripts/**/*.js';eslint --fix 'static-html/**/*.js';",
     "jsonlint": "jsonlint -q package.json;jsonlint -q scripts;jsonlint -q config.json;",
     "preflight": "find . -name '.DS_Store' | xargs rm;npm update;npm outdated;npm i;npm audit fix;npm run eslint;npm run jsonlint;",
     "start": "node -max-old-space-size=1700 scripts/index.js",

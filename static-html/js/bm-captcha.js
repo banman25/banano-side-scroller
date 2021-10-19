@@ -1,10 +1,10 @@
-const bmcaptcha = {}
+const bmcaptcha = {};
 bmcaptcha.MAX_IMAGES = 6;
-bmcaptcha.captchaClickedCallback = () => {}
+bmcaptcha.captchaClickedCallback = () => {};
 bmcaptcha.secretKey = '';
 bmcaptcha.postJSON = (path, json, success, error) => {
-  var xhr = new XMLHttpRequest();
-  xhr.onreadystatechange = function () {
+  const xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
     if (xhr.readyState === XMLHttpRequest.DONE) {
       if (xhr.status === 200) {
         if (success) {
@@ -17,15 +17,15 @@ bmcaptcha.postJSON = (path, json, success, error) => {
       }
     }
   };
-  xhr.open("POST", path, true);
-  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.open('POST', path, true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify(json));
-}
+};
 
 bmcaptcha.init = (id, captchaClickedCallback) => {
   const registerCallback = (json) => {
     bmcaptcha.secretKey = json.secretKey;
-  }
+  };
   bmcaptcha.postJSON('bm-captcha-register', {}, registerCallback);
 
   bmcaptcha.captchaClickedCallback = captchaClickedCallback;
@@ -52,7 +52,7 @@ bmcaptcha.init = (id, captchaClickedCallback) => {
     'style': 'display:none',
     'id': 'bm_captcha',
   });
-  addText(captchaElt, "Captcha");
+  addText(captchaElt, 'Captcha');
   addChildElement(captchaElt, 'br');
   const captchaAnchorElt = addChildElement(captchaElt, 'a', {
     'onclick': 'bmcaptcha.captchaClicked(event)',
@@ -64,7 +64,7 @@ bmcaptcha.init = (id, captchaClickedCallback) => {
       'ismap': 'ismap',
     });
   }
-}
+};
 
 bmcaptcha.captchaClicked = (event) => {
   // console.log('captchaClicked', event.target);
@@ -76,15 +76,15 @@ bmcaptcha.captchaClicked = (event) => {
   const callbackWrapper = (response) => {
     bmcaptcha.hideCaptcha();
     bmcaptcha.captchaClickedCallback(response);
-  }
+  };
 
   bmcaptcha.postJSON('bm-captcha-verify', request, callbackWrapper);
-}
+};
 
 bmcaptcha.hideCaptcha = () => {
   const captchaElt = document.querySelector('#bm_captcha');
   captchaElt.setAttribute('style', 'display:none');
-}
+};
 
 bmcaptcha.showCaptcha = (callback) => {
   const callbackWrapper = (json) => {
@@ -99,8 +99,8 @@ bmcaptcha.showCaptcha = (callback) => {
       captchaImageElt.setAttribute('src', data);
     });
     callback(json);
-  }
+  };
   const request = {};
   request.secretKey = bmcaptcha.secretKey;
   bmcaptcha.postJSON('bm-captcha-request', request, callbackWrapper);
-}
+};

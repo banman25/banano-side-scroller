@@ -265,7 +265,7 @@ const loadScore = async () => {
     method: 'GET',
   });
   const responseJson = await response.json();
-  if(responseJson.success) {
+  if (responseJson.success) {
     score = `${responseJson.tempScore}+${responseJson.finalScore}`;
   } else {
     displayErrorMessage(responseJson.message);

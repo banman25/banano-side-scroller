@@ -408,8 +408,15 @@ const initWebServer = async () => {
       data.success = true;
       data.message = 'board';
       data.chunk_ids = [];
-      for (let x = 0; x < config.numberOfChunksPerBoard; x++) {
-        data.chunk_ids.push(randomUtil.getRandomArrayElt(chunkIds));
+      if (config.chunkTestPattern) {
+        chunkIds.forEach((id) => {
+          data.chunk_ids.push(id);
+        });
+        // console.log(dateUtil.getDate(), 'board', 'account', account, 'data.chunk_ids', data.chunk_ids);
+      } else {
+        for (let x = 0; x < config.numberOfChunksPerBoard; x++) {
+          data.chunk_ids.push(randomUtil.getRandomArrayElt(chunkIds));
+        }
       }
       const tempData = getTempData(account, ip);
       tempData.chunk_ids = data.chunk_ids;
