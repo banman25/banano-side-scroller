@@ -19,6 +19,7 @@ const bananojsCacheUtil = require('../util/bananojs-cache-util.js');
 const paymentUtil = require('../util/payment-util.js');
 
 // constants
+const version = require('../../package.json').version;
 const REWARD_IX = 2;
 const PENALTY_IX = 1;
 let chunksById;
@@ -160,6 +161,7 @@ const initWebServer = async () => {
 
   app.get('/scoreboard', async (req, res) => {
     const data = {};
+    data.version = version;
 
     const walletAccount = await paymentUtil.getWalletAccount();
     data.wallet_account = walletAccount;
@@ -175,6 +177,7 @@ const initWebServer = async () => {
   app.get('/side-scroller', async (req, res) => {
     const data = {};
     data.data_packs = [];
+    data.version = version;
 
     const selectedDataPack = getDataPackCookie(req);
     for (let dataPackIx = 0; dataPackIx < config.dataPacks.length; dataPackIx++) {
@@ -189,11 +192,6 @@ const initWebServer = async () => {
       data.data_packs.push(elt);
     }
     res.render('side-scroller', data);
-  });
-
-  app.get('/level-designer', async (req, res) => {
-    const data = {};
-    res.render('level-designer', data);
   });
 
   app.get('/bm-captcha-register', async (req, res) => {
