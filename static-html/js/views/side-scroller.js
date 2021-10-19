@@ -300,10 +300,13 @@ const loadBoard = async (groupSvgElt) => {
   const chunkIds = await loadChunkIds();
   remaining = 0;
   let x = 0;
+
+  const steps = parseInt(ASSET_SIZE / MOVE_DX,0);
+
   for (let ix = 0; ix < chunkIds.length; ix++) {
     const id = chunkIds[ix];
     const chunk = await loadChunkById(id);
-    remaining += chunk.length;
+    remaining += chunk.length * steps;
 
     for (let chunkColumnIx = 0; chunkColumnIx < chunk.length; chunkColumnIx++) {
       const chunkColumn = chunk[chunkColumnIx];

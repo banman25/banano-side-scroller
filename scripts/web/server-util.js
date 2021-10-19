@@ -412,6 +412,10 @@ const initWebServer = async () => {
         chunkIds.forEach((id) => {
           data.chunk_ids.push(id);
         });
+        data.chunk_ids.reverse();
+        chunkIds.forEach((id) => {
+          data.chunk_ids.push(id);
+        });
         // console.log(dateUtil.getDate(), 'board', 'account', account, 'data.chunk_ids', data.chunk_ids);
       } else {
         for (let x = 0; x < config.numberOfChunksPerBoard; x++) {
