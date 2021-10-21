@@ -1,6 +1,7 @@
 'use strict';
 // libraries
 const https = require('https');
+const http = require('http');
 
 // modules
 
@@ -41,6 +42,18 @@ const sendRequest = async (url, method, formData) => {
     const body = JSON.stringify(formData);
     // console.log('sendRequest url', url);
 
+    let protocol;
+    switch (apiUrl.protocol) {
+      case 'http:':
+        protocol = http;
+        break;
+      case 'https:':
+        protocol = https;
+        break;
+      default:
+        throw Error(`unknown protocol:'${apiUrl.protocol}' in url '${apiUrl.protocol}'`);
+    }
+
     const options = {
       method: method,
       timeout: 30000,
@@ -53,7 +66,7 @@ const sendRequest = async (url, method, formData) => {
       };
     }
 
-    const req = https.request(apiUrl, options, (res) => {
+    const req = protocol.request(apiUrl, options, (res) => {
       // console.log(`statusCode: ${res.statusCode}`);
       let chunks = '';
       res.on('data', (chunk) => {

@@ -21,7 +21,7 @@ const paymentUtil = require('../util/payment-util.js');
 // constants
 const version = require('../../package.json').version;
 const REWARD_IX = 2;
-const PENALTY_IX = 1;
+const PENALTY_IXS = [1, 3];
 let chunksById;
 const chunkIds = [];
 
@@ -311,10 +311,9 @@ const initWebServer = async () => {
             tempData.prev_col_ix = colIx;
           }
           /**
-           * allow both prev_col_ix and prev_col_ix-1 because it's possible to
-           * jump between two rewards.
+           * allow tempData.prev_col_ix - 2 because you can use the back arrows to get rewards.
            */
-          if ((colIx == tempData.prev_col_ix) || (colIx == tempData.prev_col_ix-1)) {
+          if ((colIx >= tempData.prev_col_ix - 2)) {
             if (chunksById[id] !== undefined) {
               const chunk = chunksById[id];
               // console.log('increment_score', 'chunk', chunk);
@@ -335,14 +334,15 @@ const initWebServer = async () => {
                       data.message = 'reward';
                     }
                     break;
-                  case PENALTY_IX:
+                  case PENALTY_IXS[0]:
+                  case PENALTY_IXS[1]:
                   // console.log('increment_score', 'penalty', 'tempData.score', tempData.score);
                     tempData.score = 0;
                     data.success = true;
                     data.message = 'penalty';
                     break;
                   default:
-                    data.message = `in chunk '${ix}', client value '${value}' is not a penalty '${PENALTY_IX}' or a reward '${REWARD_IX}'`;
+                    data.message = `in chunk '${ix}', client value '${value}' is not a penalty '${JSON.stringify(PENALTY_IXS)}' or a reward '${REWARD_IX}'`;
                 }
               } else {
                 data.message = `in chunk '${ix}', client col_ix '${colIx}' not found in server chunk of length ${chunk.length}`;
