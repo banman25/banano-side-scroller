@@ -25,4 +25,3 @@
 ### todo
 
     4. with payment, store previous, to make payouts faster.
-    5. when there is no ground, disable gravity.

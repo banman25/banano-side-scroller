@@ -317,14 +317,19 @@ const loadBoard = async (groupSvgElt) => {
           if (assetId < assetsHrefs.length) {
             const href = assetsHrefs[assetId];
             let classNm = 'obstacle';
-            if (href == REWARD_HREF) {
-              classNm = 'reward';
-            }
-            if (href == WATER_HREF) {
-              classNm = 'penalty';
-            }
-            if (href == OBSTACLE_HREF) {
-              classNm = 'penalty';
+            switch (href) {
+              case GROUND_HREF:
+                classNm = 'obstacle';
+                break;
+              case REWARD_HREF:
+                classNm = 'reward';
+                break;
+              case WATER_HREF:
+                classNm = 'penalty';
+                break;
+              case OBSTACLE_HREF:
+                classNm = 'penalty';
+                break;
             }
             addChildSvgElement(groupSvgElt, 'image', {
               'y': y,

@@ -500,7 +500,7 @@
   "dataPacks": [
     {
       "name": "basic",
-      "url": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/static-html/basic/"
+      "url": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/basic/static-html/"
     },
     {
       "name": "volcano",
@@ -508,7 +508,7 @@
     },
     {
       "name": "space",
-      "url": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/static-html/space/"
+      "url": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/space/static-html/"
     }
   ],
   "web": {
