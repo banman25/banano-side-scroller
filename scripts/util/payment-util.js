@@ -189,20 +189,26 @@ const payEverybodyAndReopenSession = async () => {
 
         loggingUtil.log(dateUtil.getDate(), 'payment', 'rawPerScore',
             rawPerScore, 'payoutBalance', payoutBalance);
-
+        let previous = undefined;
         for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
           try {
+            const representative = config.walletRepresentative;
             const scoreElt = scores[scoreIx];
             const account = scoreElt.account;
             const score = scoreElt.score;
             const bananoRaw = BigInt(score) * rawPerScore;
             const balanceParts = await bananojs.getBananoPartsFromRaw(bananoRaw);
             const bananoDecimal = await bananojs.getBananoPartsAsDecimal(balanceParts);
+            const seed = config.walletSeed;
+            const seedIx = config.walletSeedIx;
             if (bananoRaw > ZERO) {
-              const result = await bananojs.sendBananoWithdrawalFromSeed(config.walletSeed, config.walletSeedIx, account, bananoDecimal);
+              const result = await bananojs.sendBananoWithdrawalFromSeed(seed,
+                  seedIx, account, bananoDecimal, representative, previous);
               // add wait so you don't fork block yourself.
-              loggingUtil.log(dateUtil.getDate(), 'payment', scoreIx, 'of', scores.length, 'account',
-                  account, 'score', score, 'bananoDecimal', bananoDecimal, 'bananoRaw', bananoRaw, 'result', result);
+              loggingUtil.log(dateUtil.getDate(), 'payment', scoreIx, 'of',
+                  scores.length, 'account', account, 'score', score, 'bananoDecimal',
+                  bananoDecimal, 'bananoRaw', bananoRaw, 'result', result);
+              previous = result;
             }
           } catch (error) {
             loggingUtil.log(dateUtil.getDate(), 'payment', 'error',
