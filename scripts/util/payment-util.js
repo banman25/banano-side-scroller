@@ -155,56 +155,68 @@ const getAccountBalanceDescription = async (seed, seedIx) => {
   if (accountInfo.balance == undefined) {
     return JSON.stringify(accountInfo);
   }
-  const balanceParts = await bananojs.getBananoPartsFromRaw(accountInfo.balance);
+  const payoutBalance = getPayoutBalance(accountInfo);
+  const balanceParts = await bananojs.getBananoPartsFromRaw(payoutBalance);
   const description = await bananojs.getBananoPartsDescription(balanceParts);
   return description;
 };
 
+const getPayoutBalance = (accountInfo) => {
+  const balance = BigInt(accountInfo.balance);
+  const sessionPayoutRatio = BigInt(parseFloat(config.sessionPayoutRatio)*100);
+  const payoutBalance = (balance * sessionPayoutRatio) / ONE_HUNDRED;
+  return payoutBalance;
+};
+
 const payEverybodyAndReopenSession = async () => {
-  const scores = await bananojsCacheUtil.getAndClearAllScores();
-  let maxScore = ZERO;
-  for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
-    const scoreElt = scores[scoreIx];
-    maxScore += BigInt(scoreElt.score);
-  }
+  try {
+    const scores = await bananojsCacheUtil.getAndClearAllScores();
+    let maxScore = ZERO;
+    for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
+      const scoreElt = scores[scoreIx];
+      maxScore += BigInt(scoreElt.score);
+    }
 
-  loggingUtil.log(dateUtil.getDate(), 'payment', 'scores.length',
-      scores.length, 'maxScore', maxScore);
+    loggingUtil.log(dateUtil.getDate(), 'payment', 'scores.length',
+        scores.length, 'maxScore', maxScore);
 
-  if (maxScore > ZERO) {
-    const account = await bananojs.getBananoAccountFromSeed(config.walletSeed, config.walletSeedIx);
-    const accountInfo = await bananojs.getAccountInfo(account, true);
-    if (accountInfo.balance !== undefined) {
-      const balance = BigInt(accountInfo.balance);
-      const sessionPayoutRatio = BigInt(parseFloat(config.sessionPayoutRatio)*100);
-      const payoutBalance = (balance * sessionPayoutRatio) / ONE_HUNDRED;
-      const rawPerScore = payoutBalance / maxScore;
+    if (maxScore > ZERO) {
+      const account = await bananojs.getBananoAccountFromSeed(config.walletSeed, config.walletSeedIx);
+      const accountInfo = await bananojs.getAccountInfo(account, true);
+      if (accountInfo.balance !== undefined) {
+        const payoutBalance = getPayoutBalance(accountInfo);
+        const rawPerScore = payoutBalance / maxScore;
 
-      loggingUtil.log(dateUtil.getDate(), 'payment', 'rawPerScore',
-          rawPerScore, 'payoutBalance', payoutBalance);
+        loggingUtil.log(dateUtil.getDate(), 'payment', 'rawPerScore',
+            rawPerScore, 'payoutBalance', payoutBalance);
 
-      for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
-        try {
-          const scoreElt = scores[scoreIx];
-          const account = scoreElt.account;
-          const score = scoreElt.score;
-          const bananoRaw = BigInt(score) * rawPerScore;
-          const balanceParts = await bananojs.getBananoPartsFromRaw(bananoRaw);
-          const bananoDecimal = await bananojs.getBananoPartsAsDecimal(balanceParts);
-          if (bananoRaw > ZERO) {
-            loggingUtil.log(dateUtil.getDate(), 'payment', 'account',
-                account, 'score', score, 'bananoDecimal', bananoDecimal, 'bananoRaw', bananoRaw);
-            await bananojs.sendBananoWithdrawalFromSeed(config.walletSeed, config.walletSeedIx, account, bananoDecimal);
-            // add wait so you don't fork block yourself.
+        for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
+          try {
+            const scoreElt = scores[scoreIx];
+            const account = scoreElt.account;
+            const score = scoreElt.score;
+            const bananoRaw = BigInt(score) * rawPerScore;
+            const balanceParts = await bananojs.getBananoPartsFromRaw(bananoRaw);
+            const bananoDecimal = await bananojs.getBananoPartsAsDecimal(balanceParts);
+            if (bananoRaw > ZERO) {
+              const result = await bananojs.sendBananoWithdrawalFromSeed(config.walletSeed, config.walletSeedIx, account, bananoDecimal);
+              // add wait so you don't fork block yourself.
+              loggingUtil.log(dateUtil.getDate(), 'payment', scoreIx, 'of', scores.length, 'account',
+                  account, 'score', score, 'bananoDecimal', bananoDecimal, 'bananoRaw', bananoRaw, 'result', result);
+            }
+          } catch (error) {
+            loggingUtil.log(dateUtil.getDate(), 'payment', 'error',
+                error.message);
           }
-        } catch (error) {
-          loggingUtil.log(dateUtil.getDate(), 'payment', 'error',
-              error.message);
         }
       }
     }
+  } catch (error) {
+    loggingUtil.log(dateUtil.getDate(), 'payment', 'error',
+        error.message);
+  } finally {
+    setSessionStartTime();
   }
-  setSessionStartTime();
 };
 
 const getWalletAccount = async () => {

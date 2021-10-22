@@ -65,6 +65,9 @@ const captchaDisplayCooldown = 0;
 
 let sessionClosedCountdown = 0;
 
+const ACCOUNT_STR = '^ban_[13456789abcdefghijkmnopqrstuwxyz]{0,64}$';
+const accountRegExp = new RegExp(ACCOUNT_STR);
+
 const onLoad = async () => {
   loadAccount();
   const dataPacksElt = document.querySelector('#data_packs');
@@ -225,10 +228,14 @@ const updateAccount = () => {
 
 const updateAccountColor = () => {
   const accountElt = document.querySelector('#account');
-  if (accountElt.value == BURN_ACCOUNT) {
-    accountElt.className = 'bg_pink';
+  if (accountRegExp.test(accountElt.value)) {
+    if (accountElt.value == BURN_ACCOUNT) {
+      accountElt.className = 'bg_pink';
+    } else {
+      accountElt.className = 'bg_white';
+    }
   } else {
-    accountElt.className = 'bg_white';
+    accountElt.className = 'bg_yellow';
   }
 };
 

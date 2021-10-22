@@ -280,6 +280,8 @@ const initWebServer = async () => {
 
     const sessionInfo = await paymentUtil.getSessionInfo();
 
+    let logError = false;
+
     const data = {};
     data.session_description = sessionInfo.description;
     data.success = false;
@@ -288,10 +290,12 @@ const initWebServer = async () => {
     if (account == undefined) {
       data.success = false;
       data.message = 'account missing from request';
+      // logError = true;
     } else if (sessionInfo.closed) {
       data.success = false;
       data.session_open = false;
       data.message = 'session closed';
+      // logError = true;
     } else {
       const tempData = getTempData(account, ip);
       // console.log(dateUtil.getDate(), 'increment_score', 'account', account, 'ix', ix, 'id', id, 'colIx', colIx, 'rowIx', rowIx, 'tempData', tempData);
@@ -302,10 +306,12 @@ const initWebServer = async () => {
 
       if (tempData.chunk_ix != ix) {
         data.message = `client chunk index '${ix}' is not same as server chunk index '${tempData.chunk_ix}'`;
+        // logError = true;
       } else {
         const serverChunkId = tempData.chunk_ids[ix];
         if (serverChunkId != id) {
           data.message = `client chunk id '${id}' is not same as server chunk id '${serverChunkId}'`;
+          logError = true;
         } else {
           if (colIx > tempData.prev_col_ix) {
             tempData.prev_col_ix = colIx;
@@ -327,6 +333,7 @@ const initWebServer = async () => {
                     const rewardKey = `chunk:${ix};col:${colIx};row:${rowIx}`;
                     if (tempData.reward_set.has(rewardKey)) {
                       data.message = `in chunk '${ix}', reward key '${rewardKey}' was already claimed.'`;
+                      logError = true;
                     } else {
                       tempData.reward_set.add(rewardKey);
                       tempData.score++;
@@ -343,22 +350,28 @@ const initWebServer = async () => {
                     break;
                   default:
                     data.message = `in chunk '${ix}', client value '${value}' is not a penalty '${JSON.stringify(PENALTY_IXS)}' or a reward '${REWARD_IX}'`;
+                    logError = true;
                 }
               } else {
                 data.message = `in chunk '${ix}', client col_ix '${colIx}' not found in server chunk of length ${chunk.length}`;
+                logError = true;
               }
             } else {
               data.message = `in chunk '${ix}', client chunk_id '${id}' not found in server chunk_ids ${Object.keys(chunksById)}`;
+              logError = true;
             }
           } else {
             data.message = `in chunk '${ix}', client col_ix '${colIx}' is not server col_ix '${tempData.prev_col_ix}'`;
+            // logError = true;
           }
         }
       }
     }
 
     if (!data.success) {
-      console.log(dateUtil.getDate(), 'increment_score', 'error', data.message, JSON.stringify(req.query));
+      if (logError) {
+        console.log(dateUtil.getDate(), 'increment_score', 'error', data.message, JSON.stringify(req.query));
+      }
     }
 
     res.setHeader('Content-Type', 'application/json');
@@ -369,11 +382,15 @@ const initWebServer = async () => {
     const ip = ipUtil.getIp(req);
     const account = req.query.account;
     const data = {};
+
+    let logError = false;
+
     data.success = false;
     data.message = 'unknown error';
     if (account == undefined) {
       data.success = false;
       data.message = 'account missing from request';
+      logError = true;
     } else {
       try {
         const finalScore = await bananojsCacheUtil.getScore(account);
@@ -385,11 +402,14 @@ const initWebServer = async () => {
       } catch (error) {
         data.success = false;
         data.message = error.message;
+        // logError = true;
       }
     }
 
     if (!data.success) {
-      console.log(dateUtil.getDate(), 'score', 'error', data.message, JSON.stringify(req.query));
+      if (logError) {
+        console.log(dateUtil.getDate(), 'score', 'error', data.message, JSON.stringify(req.query));
+      }
     }
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
