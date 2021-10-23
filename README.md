@@ -24,5 +24,6 @@
 
 ### todo
 
+    0. make account regex configurable.
+    1. make page title configurable.
     1. make wallet account on scoreboard a link to the block explorer.
-    2. add 'change rep to my rep to count as X% more' to decentralize the reps more.

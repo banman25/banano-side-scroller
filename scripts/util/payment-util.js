@@ -152,6 +152,9 @@ const receiveWalletPending = async () => {
 const getAccountBalanceDescription = async (seed, seedIx) => {
   const account = await bananojs.getBananoAccountFromSeed(seed, seedIx);
   const accountInfo = await bananojs.getAccountInfo(account, true);
+  if (accountInfo == undefined) {
+    return '';
+  }
   if (accountInfo.balance == undefined) {
     return JSON.stringify(accountInfo);
   }

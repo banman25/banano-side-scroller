@@ -55,11 +55,16 @@ const init = async () => {
 };
 
 const paymentFn = async () => {
-  await paymentUtil.receiveWalletPending();
-  if (await paymentUtil.isSessionClosed()) {
-    await paymentUtil.payEverybodyAndReopenSession();
+  try {
+    await paymentUtil.receiveWalletPending();
+    if (await paymentUtil.isSessionClosed()) {
+      await paymentUtil.payEverybodyAndReopenSession();
+    }
+  } catch (error) {
+    loggingUtil.log(dateUtil.getDate(), 'paymentFn', 'error', error.message);
+  } finally {
+    setTimeout(paymentFn, config.sessionStatusPollTimeMs);
   }
-  setTimeout(paymentFn, config.sessionStatusPollTimeMs);
 };
 
 const deactivate = async () => {
