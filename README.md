@@ -23,7 +23,3 @@
     npm run screenrestart;
 
 ### todo
-
-    0. make account regex configurable.
-    1. make page title configurable.
-    1. make wallet account on scoreboard a link to the block explorer.

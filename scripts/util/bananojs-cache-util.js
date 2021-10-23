@@ -8,8 +8,6 @@ const awaitSemaphore = require('await-semaphore');
 const dateUtil = require('./date-util.js');
 
 // constants
-const ACCOUNT_STR = '^ban_[13456789abcdefghijkmnopqrstuwxyz]{0,64}$';
-const accountRegExp = new RegExp(ACCOUNT_STR);
 const DEBUG = false;
 
 // variables
@@ -17,6 +15,7 @@ const DEBUG = false;
 let config;
 let loggingUtil;
 let mutex;
+let accountRegExp;
 /* eslint-enable no-unused-vars */
 
 // functions
@@ -33,6 +32,8 @@ const init = (_config, _loggingUtil, _seed, _entropyList) => {
   loggingUtil = _loggingUtil;
   mutex = new awaitSemaphore.Mutex();
 
+  accountRegExp = new RegExp(config.accountRegex);
+
   if (!fs.existsSync(config.bananojsCacheDataDir)) {
     fs.mkdirSync(config.bananojsCacheDataDir, {recursive: true});
   }
@@ -43,6 +44,7 @@ const deactivate = () => {
   config = undefined;
   loggingUtil = undefined;
   mutex = undefined;
+  accountRegExp = undefined;
   /* eslint-enable no-unused-vars */
 };
 
@@ -63,7 +65,7 @@ const getScore = async (account) => {
       mutexRelease();
     }
   } else {
-    throw Error(`account '${account}' does not match regex '${ACCOUNT_STR}'`);
+    throw Error(`account '${account}' does not match regex '${config.accountRegex}'`);
   }
 };
 

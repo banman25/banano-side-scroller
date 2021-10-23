@@ -1,12 +1,14 @@
 <table class="t_center align_top display_inline_block">
   <tr>
     <td colspan="3" class="align_top">
-      <a href="/" class="small">Side Scroller</a>
+      <a href="/" class="small">{{title}}</a>
     </td>
   </tr>
   <tr>
     <td class="align_top">
-      {{wallet_account}}
+      <a href="{{wallet_account_url}}" target="_blank">
+        {{wallet_account}}
+      </a>
       <p>
         Number of Entries: {{histogram.length}}
       <p>

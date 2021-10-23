@@ -530,5 +530,8 @@
   "walletRepresentative": "",
   "maxPendingBananos": 10,
   "pngChunkDir": "chunks",
-  "chunkTestPattern": false
+  "chunkTestPattern": false,
+  "accountRegex": "^ban_[13456789abcdefghijkmnopqrstuwxyz]{0,64}$",
+  "blockExplorerAccountPrefix": "https://yellowspyglass.com/account/",
+  "title": "Banano Walker"
 }

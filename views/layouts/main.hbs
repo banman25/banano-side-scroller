@@ -4,13 +4,14 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta charset="utf-8">
-  <title>Banano Side Scroller</title>
+  <title>{{title}}</title>
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body onload="onLoad()">
   {{{body}}}
   <br>
+  <span class="display_none" id="accountRegex">{{accountRegex}}</span>
   <small class="small error" id="errorMessage">&nbsp;</small>
   <small class="small">Version {{version}}</small><br>
     {{> includes/footer }}

@@ -75,6 +75,11 @@ const init = async (_config, _loggingUtil) => {
     }
   }
 
+  if (config.blockExplorerAccountPrefix.endsWith('/')) {
+    config.blockExplorerAccountPrefix =
+    config.blockExplorerAccountPrefix.substring(0, config.blockExplorerAccountPrefix.length-1);
+  }
+
   loadChunks();
   await initWebServer();
 };
@@ -165,9 +170,12 @@ const initWebServer = async () => {
 
     const walletAccount = await paymentUtil.getWalletAccount();
     data.wallet_account = walletAccount;
+    data.wallet_account_url = config.blockExplorerAccountPrefix + '/' + walletAccount;
 
     const histogram = await bananojsCacheUtil.getHistogram();
     data.histogram = histogram;
+
+    data.title = config.title;
 
     // console.log(dateUtil.getDate(), 'scoreboard', JSON.stringify(data));
 
@@ -178,6 +186,7 @@ const initWebServer = async () => {
     const data = {};
     data.data_packs = [];
     data.version = version;
+    data.accountRegex = config.accountRegex;
 
     const selectedDataPack = getDataPackCookie(req);
     for (let dataPackIx = 0; dataPackIx < config.dataPacks.length; dataPackIx++) {
