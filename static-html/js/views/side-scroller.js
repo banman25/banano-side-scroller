@@ -276,7 +276,7 @@ const loadScore = async () => {
   });
   const responseJson = await response.json();
   if (responseJson.success) {
-    score = `${responseJson.tempScore}+${responseJson.finalScore}`;
+    score = `${responseJson.tempScore} pending, ${responseJson.finalScore} cemented.`;
   } else {
     displayErrorMessage(responseJson.message);
   }
@@ -522,6 +522,7 @@ const moveForegroundDown = async () => {
       set(foregroundElt, 'y', FOREGROUND_MAX_Y);
     }
     if (penaltyJump) {
+
       moveUp();
       if ((!score.startsWith('0')) && (score != LOADING)) {
         score == LOADING;
@@ -593,6 +594,11 @@ const updateScore = async () => {
         await incrementScore(penaltyElt);
       }
     }
+  }
+  if (score.startsWith('0')) {
+    scoreElt.className = 'small bg_pink';
+  } else {
+    scoreElt.className = 'small bg_white';
   }
   scoreElt.innerText = 'Score:' + score + ' Moves Remaining:' + remaining;
 };
