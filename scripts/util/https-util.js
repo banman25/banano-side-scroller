@@ -40,7 +40,7 @@ const sendRequest = async (url, method, formData) => {
   return new Promise((resolve) => {
     const apiUrl = new URL(url);
     const body = JSON.stringify(formData);
-    // console.log('sendRequest url', url);
+    // loggingUtil.log('sendRequest url', url);
 
     let protocol;
     switch (apiUrl.protocol) {
@@ -67,7 +67,7 @@ const sendRequest = async (url, method, formData) => {
     }
 
     const req = protocol.request(apiUrl, options, (res) => {
-      // console.log(`statusCode: ${res.statusCode}`);
+      // loggingUtil.log(`statusCode: ${res.statusCode}`);
       let chunks = '';
       res.on('data', (chunk) => {
         chunks += chunk;
@@ -84,7 +84,7 @@ const sendRequest = async (url, method, formData) => {
     });
 
     req.on('error', (error) => {
-      console.log('sendRequest error', error, body);
+      loggingUtil.log('sendRequest error', error, body);
     });
 
     if (formData !== undefined) {

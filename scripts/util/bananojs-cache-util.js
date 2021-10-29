@@ -128,6 +128,20 @@ const getActiveAccountCount = () => {
   return count;
 };
 
+const clearScore = async (account) => {
+  const allScores = [];
+  const mutexRelease = await mutex.acquire();
+  try {
+    const accountFile = path.join(config.bananojsCacheDataDir, account);
+    if (fs.existsSync(accountFile)) {
+      fs.unlinkSync(accountFile);
+    }
+  } finally {
+    mutexRelease();
+  }
+  return allScores;
+};
+
 const getAndClearAllScores = async () => {
   const allScores = [];
   const mutexRelease = await mutex.acquire();
@@ -149,6 +163,24 @@ const getAndClearAllScores = async () => {
   return allScores;
 };
 
+const getAccountBalances = async () => {
+  const accounts = [];
+  const mutexRelease = await mutex.acquire();
+  try {
+    if (fs.existsSync(config.bananojsCacheDataDir)) {
+      fs.readdirSync(config.bananojsCacheDataDir).forEach((file) => {
+        const accountFile = path.join(config.bananojsCacheDataDir, file);
+        const data = fs.readFileSync(accountFile, 'UTF-8');
+        const score = JSON.parse(data).score;
+        accounts.push({account: file, score: score});
+      });
+    }
+  } finally {
+    mutexRelease();
+  }
+  return accounts;
+};
+
 const getHistogram = async () => {
   const histogramMap = new Map();
   const mutexRelease = await mutex.acquire();
@@ -161,7 +193,7 @@ const getHistogram = async () => {
         const scoreBucket = Math.max(1, Number(score).toString().length);
         const bucket = `Score 1${'0'.repeat(scoreBucket-1)} to 1${'0'.repeat(scoreBucket)}`;
 
-        // console.log(dateUtil.getDate(), 'histogram', 'score', score, 'bucket', bucket);
+        // loggingUtil.log(dateUtil.getDate(), 'histogram', 'score', score, 'bucket', bucket);
 
         if (histogramMap.has(bucket)) {
           const old = histogramMap.get(bucket);
@@ -182,8 +214,8 @@ const getHistogram = async () => {
     });
   }
 
-  // console.log(dateUtil.getDate(), 'histogramMap', histogramMap);
-  // console.log(dateUtil.getDate(), 'histogram', JSON.stringify(histogram));
+  // loggingUtil.log(dateUtil.getDate(), 'histogramMap', histogramMap);
+  // loggingUtil.log(dateUtil.getDate(), 'histogram', JSON.stringify(histogram));
 
   return histogram;
 };
@@ -195,4 +227,6 @@ exports.getScore = getScore;
 exports.getTotalAccountCount = getTotalAccountCount;
 exports.getActiveAccountCount = getActiveAccountCount;
 exports.getAndClearAllScores = getAndClearAllScores;
+exports.getAccountBalances = getAccountBalances;
+exports.clearScore = clearScore;
 exports.getHistogram = getHistogram;

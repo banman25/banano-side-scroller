@@ -39,7 +39,7 @@ const getIp = (req) => {
   } else {
     ip = req.connection.remoteAddress;
   }
-  // console.log('ip', ip);
+  // loggingUtil.log('ip', ip);
   return ip;
 };
 

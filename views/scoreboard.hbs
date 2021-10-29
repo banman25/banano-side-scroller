@@ -30,8 +30,49 @@
           </tr>
         {{/each}}
       </table>
+      {{#if admin}}
+        <p>
+          Number of Accounts: {{accounts.length}}
+        <p>
+        <table class="t_center align_top display_inline_block bordered">
+          {{#if accounts}}
+            <tr>
+              <td class="bordered align_top">Account</td>
+              <td class="bordered align_top">Score</td>
+              <td class="bordered align_top">Mark as Paid</td>
+            </tr>
+          {{/if}}
+          {{#each accounts}}
+            <tr>
+              <td class="bordered align_top">{{account}}</td>
+              <td class="bordered align_top">{{score}}</td>
+              <td class="bordered align_top">
+                <button id="admin-pay" onclick="return clearScore('{{account}}')">
+                  Mark as Paid
+                </button>
+              </td>
+            </tr>
+          {{else}}
+            <tr>
+              <td class="align_top">No Entries</td>
+            </tr>
+          {{/each}}
+        </table>
+        <br>
+        <button id="admin-key-clear" onclick="clearAdminKey(); return false;">
+          Clear Admin Key
+        </button>
+      {{else}}
+        <p>
+          Admin Key
+        <p>
+          <input id="adminKey" type="text" size="66" max_length="64" onchange="updateAdminKey(); return false;" oninput="updateAdminKey(); return false;"></input>
+          <br>
+          <button id="admin-key-update" onclick="updateAdminKey(); return false;">
+            Set Admin Key
+          </button>
+      {{/if}}
     </td>
   </tr>
 </table>
-<script src="js/bm-captcha.js"></script>
-<script src="js/views/side-scroller.js"></script>
+<script src="js/views/scoreboard.js"></script>

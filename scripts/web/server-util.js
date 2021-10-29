@@ -9,6 +9,7 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bananojs = require('@bananocoin/bananojs');
 
 // modules
 const randomUtil = require('../util/random-util.js');
@@ -117,12 +118,12 @@ const getTempData = (account, ip) => {
   if (!accountData.tempScoreByIp.has(ip)) {
     const ipData = {};
     ipData.score = 0;
-    // console.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'ipData', ipData);
+    // loggingUtil.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'ipData', ipData);
     accountData.tempScoreByIp.set(ip, ipData);
   }
   const retval = accountData.tempScoreByIp.get(ip);
   if (retval == undefined) {
-    console.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'retval', retval);
+    loggingUtil.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'retval', retval);
   }
   return retval;
 };
@@ -168,6 +169,18 @@ const initWebServer = async () => {
     const data = {};
     data.version = version;
 
+    const adminKeyCookie = getAdminKeyCookie(req);
+
+    // loggingUtil.log(dateUtil.getDate(), 'scoreboard',
+    // 'adminKeyCookie', adminKeyCookie,
+    // 'config.adminKey', config.adminKey);
+
+    data.admin = (adminKeyCookie == config.adminKey);
+
+    if(data.admin) {
+      data.accounts = await bananojsCacheUtil.getAccountBalances();
+    }
+
     const walletAccount = await paymentUtil.getWalletAccount();
     data.wallet_account = walletAccount;
     data.wallet_account_url = config.blockExplorerAccountPrefix + '/' + walletAccount;
@@ -177,7 +190,7 @@ const initWebServer = async () => {
 
     data.title = config.title;
 
-    // console.log(dateUtil.getDate(), 'scoreboard', JSON.stringify(data));
+    // loggingUtil.log(dateUtil.getDate(), 'scoreboard', JSON.stringify(data));
 
     res.render('scoreboard', data);
   });
@@ -239,7 +252,7 @@ const initWebServer = async () => {
         const dataPack = config.dataPacks[dataPackIx];
         if (dataPack.name == dataPackName) {
           const url = `${dataPack.url}/${asset.dir}/${asset.file}`;
-          // console.log('dataPackName', dataPackName, url);
+          // loggingUtil.log('dataPackName', dataPackName, url);
           res.redirect(302, url);
           return;
         }
@@ -247,6 +260,76 @@ const initWebServer = async () => {
       res.status(404);
       res.type('text/plain;charset=UTF-8').send('');
     });
+  });
+
+  app.post('/admin_key', async (req, res) => {
+    if ((req.body.admin_key === undefined)) {
+      const data = {
+        success: false,
+        message: 'no admin_key',
+      };
+      res.end(JSON.stringify(data));
+      return;
+    }
+
+    // loggingUtil.log(dateUtil.getDate(), 'admin_key',
+    //     'req.body.admin_key', req.body.admin_key,
+    //     'config.adminKey', config.adminKey);
+
+    setAdminKeyCookie(res, req.body.admin_key);
+
+    const data = {
+      success: true,
+      message: 'admin key set.',
+    };
+    res.end(JSON.stringify(data));
+    return;
+  });
+
+  app.post('/clear_score', async (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    if ((req.body.admin_key === undefined)) {
+      const data = {
+        success: false,
+        message: 'no admin_key',
+      };
+      res.end(JSON.stringify(data));
+      return;
+    }
+    if ((req.body.account === undefined)) {
+      const data = {
+        success: false,
+        message: 'no account',
+      };
+      res.end(JSON.stringify(data));
+      return;
+    }
+    if ((config.adminKey.length == 0) || (req.body.admin_key !== config.adminKey)) {
+      const data = {
+        success: false,
+        message: 'admin_key mismatch',
+      };
+      res.end(JSON.stringify(data));
+      return;
+    }
+    const account = req.body.account;
+    const accountValidationInfo = bananojs.getBananoAccountValidationInfo(account);
+    // loggingUtil.log('/clear_score', account, accountValidationInfo);
+    if (!accountValidationInfo.valid) {
+      const data = {
+        success: false,
+        message: accountValidationInfo.message,
+      };
+      res.end(JSON.stringify(data));
+      return;
+    }
+    await bananojsCacheUtil.clearScore(account);
+    const data = {
+      success: true,
+      message: 'cleared score for:' + account,
+    };
+    res.end(JSON.stringify(data));
+    return;
   });
 
   app.post('/data_pack', async (req, res) => {
@@ -291,6 +374,8 @@ const initWebServer = async () => {
 
     let logError = false;
 
+    const accountValidationInfo = bananojs.getBananoAccountValidationInfo(account);
+
     const data = {};
     data.session_description = sessionInfo.description;
     data.success = false;
@@ -305,9 +390,13 @@ const initWebServer = async () => {
       data.session_open = false;
       data.message = 'session closed';
       // logError = true;
+    } else if (!accountValidationInfo.valid) {
+      data.success = false;
+      data.session_open = true;
+      data.message = accountValidationInfo.message;
     } else {
       const tempData = getTempData(account, ip);
-      // console.log(dateUtil.getDate(), 'increment_score', 'account', account, 'ix', ix, 'id', id, 'colIx', colIx, 'rowIx', rowIx, 'tempData', tempData);
+      // loggingUtil.log(dateUtil.getDate(), 'increment_score', 'account', account, 'ix', ix, 'id', id, 'colIx', colIx, 'rowIx', rowIx, 'tempData', tempData);
       if (ix > tempData.chunk_ix) {
         tempData.chunk_ix = ix;
         tempData.prev_col_ix = 0;
@@ -331,14 +420,14 @@ const initWebServer = async () => {
           if ((colIx >= tempData.prev_col_ix - 2)) {
             if (chunksById[id] !== undefined) {
               const chunk = chunksById[id];
-              // console.log('increment_score', 'chunk', chunk);
+              // loggingUtil.log('increment_score', 'chunk', chunk);
               if (chunk[colIx] !== undefined) {
                 const col = chunk[colIx];
-                // console.log('increment_score', 'col', col);
+                // loggingUtil.log('increment_score', 'col', col);
                 const value = col[rowIx];
                 switch (value) {
                   case REWARD_IX:
-                    // console.log('increment_score', 'accountData.score', accountData.score);
+                    // loggingUtil.log('increment_score', 'accountData.score', accountData.score);
                     const rewardKey = `chunk:${ix};col:${colIx};row:${rowIx}`;
                     if (tempData.reward_set.has(rewardKey)) {
                       data.message = `in chunk '${ix}', reward key '${rewardKey}' was already claimed.'`;
@@ -352,7 +441,7 @@ const initWebServer = async () => {
                     break;
                   case PENALTY_IXS[0]:
                   case PENALTY_IXS[1]:
-                  // console.log('increment_score', 'penalty', 'tempData.score', tempData.score);
+                  // loggingUtil.log('increment_score', 'penalty', 'tempData.score', tempData.score);
                     tempData.score = 0;
                     data.success = true;
                     data.message = 'penalty';
@@ -379,7 +468,7 @@ const initWebServer = async () => {
 
     if (!data.success) {
       if (logError) {
-        console.log(dateUtil.getDate(), 'increment_score', 'error', data.message, JSON.stringify(req.query));
+        loggingUtil.log(dateUtil.getDate(), 'increment_score', 'error', data.message, JSON.stringify(req.query));
       }
     }
 
@@ -417,7 +506,7 @@ const initWebServer = async () => {
 
     if (!data.success) {
       if (logError) {
-        console.log(dateUtil.getDate(), 'score', 'error', data.message, JSON.stringify(req.query));
+        loggingUtil.log(dateUtil.getDate(), 'score', 'error', data.message, JSON.stringify(req.query));
       }
     }
     res.setHeader('Content-Type', 'application/json');
@@ -445,7 +534,7 @@ const initWebServer = async () => {
         chunkIds.forEach((id) => {
           data.chunk_ids.push(id);
         });
-        // console.log(dateUtil.getDate(), 'board', 'account', account, 'data.chunk_ids', data.chunk_ids);
+        // loggingUtil.log(dateUtil.getDate(), 'board', 'account', account, 'data.chunk_ids', data.chunk_ids);
       } else {
         for (let x = 0; x < config.numberOfChunksPerBoard; x++) {
           data.chunk_ids.push(randomUtil.getRandomArrayElt(chunkIds));
@@ -456,11 +545,11 @@ const initWebServer = async () => {
       tempData.chunk_ix = 0;
       tempData.prev_col_ix = -1;
       tempData.reward_set = new Set();
-      // console.log(dateUtil.getDate(), 'board', 'account', account, 'tempData', tempData);
+      // loggingUtil.log(dateUtil.getDate(), 'board', 'account', account, 'tempData', tempData);
     }
 
     if (!data.success) {
-      console.log(dateUtil.getDate(), 'board', 'error', data.message, JSON.stringify(req.query));
+      loggingUtil.log(dateUtil.getDate(), 'board', 'error', data.message, JSON.stringify(req.query));
     }
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
@@ -537,6 +626,14 @@ const getDataPackCookie = (req) => {
     dataPack = req.signedCookies.data_pack;
   }
   return dataPack;
+};
+
+const setAdminKeyCookie = (res, dataPack) => {
+  res.cookie('admin_key', dataPack, {signed: true});
+};
+
+const getAdminKeyCookie = (req) => {
+  return req.signedCookies.admin_key;
 };
 
 // exports

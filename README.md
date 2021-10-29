@@ -22,4 +22,6 @@
 
     npm run screenrestart;
 
-### todo
+i### todo
+
+    add a manual payment page

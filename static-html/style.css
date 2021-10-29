@@ -21,7 +21,7 @@ ol {}
 
 hr {}
 
-button {
+.arrow_button {
   width: 180px;
   height: 60px;
 }

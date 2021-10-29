@@ -96,18 +96,24 @@ const getSessionInfo = async () => {
   const sessionInfo = {};
   try {
     const sessionStartTime = getSessionStartTime();
-    const sessionDuration = BigInt(config.sessionDurationMs);
-    const currentTime = BigInt(Date.now());
-    const currentDuration = currentTime - sessionStartTime;
-    const remainingDuration = getBigIntMax(ZERO, sessionDuration-currentDuration);
-    if (remainingDuration <= ZERO) {
-      sessionInfo.closed = true;
-    }
     sessionInfo.start = sessionStartTime.toString();
-    sessionInfo.duration = sessionDuration.toString();
-    sessionInfo.remaining = remainingDuration.toString();
-    sessionInfo.remaining_description = msToTime(remainingDuration);
     sessionInfo.balance_description = walletAccountBalanceDescription;
+    if(config.sessionAutomaticPaymentFlag) {
+      const sessionDuration = BigInt(config.sessionDurationMs);
+      const currentTime = BigInt(Date.now());
+      const currentDuration = currentTime - sessionStartTime;
+      const remainingDuration = getBigIntMax(ZERO, sessionDuration-currentDuration);
+      if (remainingDuration <= ZERO) {
+        sessionInfo.closed = true;
+      }
+      sessionInfo.duration = sessionDuration.toString();
+      sessionInfo.remaining = remainingDuration.toString();
+      sessionInfo.remaining_description = msToTime(remainingDuration);
+    } else {
+      sessionInfo.duration = 'infinite';
+      sessionInfo.remaining = 'infinite';
+      sessionInfo.remaining_description = 'infinite';
+    }
     sessionInfo.description = `Session prize:${sessionInfo.balance_description} time left:${sessionInfo.remaining_description}`;
   } finally {
     mutexRelease();
