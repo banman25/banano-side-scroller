@@ -55,7 +55,7 @@ const init = async () => {
 };
 
 const paymentFn = async () => {
-  if(config.sessionAutomaticPaymentFlag) {
+  if (config.sessionAutomaticPaymentFlag) {
     try {
       await paymentUtil.receiveWalletPending();
       if (await paymentUtil.isSessionClosed()) {

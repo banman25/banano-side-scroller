@@ -522,7 +522,6 @@ const moveForegroundDown = async () => {
       set(foregroundElt, 'y', FOREGROUND_MAX_Y);
     }
     if (penaltyJump) {
-
       moveUp();
       if ((!score.startsWith('0')) && (score != LOADING)) {
         score == LOADING;

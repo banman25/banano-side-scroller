@@ -98,7 +98,7 @@ const getSessionInfo = async () => {
     const sessionStartTime = getSessionStartTime();
     sessionInfo.start = sessionStartTime.toString();
     sessionInfo.balance_description = walletAccountBalanceDescription;
-    if(config.sessionAutomaticPaymentFlag) {
+    if (config.sessionAutomaticPaymentFlag) {
       const sessionDuration = BigInt(config.sessionDurationMs);
       const currentTime = BigInt(Date.now());
       const currentDuration = currentTime - sessionStartTime;
