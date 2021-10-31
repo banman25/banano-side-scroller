@@ -4,8 +4,10 @@ const onLoad = async () => {
 
 const loadAdminKey = () => {
   const adminKeyElt = document.querySelector('#adminKey');
-  if (window.localStorage.adminKey !== undefined) {
-    adminKeyElt.value = window.localStorage.adminKey;
+  if (adminKeyElt !== null) {
+    if (window.localStorage.adminKey !== undefined) {
+      adminKeyElt.value = window.localStorage.adminKey;
+    }
   }
 };
 
@@ -56,3 +58,8 @@ const clearScore = async (account) => {
     displayErrorMessage(responseJson.message);
   }
 };
+
+window.onLoad = onLoad;
+window.updateAdminKey = updateAdminKey;
+window.clearAdminKey = clearAdminKey;
+window.clearScore = clearScore;

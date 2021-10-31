@@ -1,7 +1,3 @@
-const addText = (parent, childText) => {
-  parent.appendChild(document.createTextNode(childText));
-};
-
 const clear = (parent) => {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
@@ -32,14 +28,6 @@ const addAttributes = (child, attributes) => {
   }
 };
 
-const addChildElement = (parent, childType, attributes) => {
-  // console.log('addChildElement', parent, childType, attributes);
-  const child = document.createElement(childType);
-  parent.appendChild(child);
-  addAttributes(child, attributes);
-  return child;
-};
-
 const displayErrorMessage = (message) => {
   const errorMessageElt = document.querySelector('#errorMessage');
   if ((message == undefined) || (message.length == 0)) {
@@ -49,17 +37,4 @@ const displayErrorMessage = (message) => {
   }
 };
 
-
-const hide = (id) => {
-  const elt = document.getElementById(id);
-  if (elt) {
-    elt.style = 'display:none';
-  }
-};
-
-const show = (id) => {
-  const elt = document.getElementById(id);
-  if (elt) {
-    elt.style = 'display:block;';
-  }
-};
+export {clear, get, set, addChildSvgElement, displayErrorMessage};

@@ -1,3 +1,7 @@
+import {get, set, clear, addChildSvgElement, displayErrorMessage} from '../lib/util.js';
+import {bmcaptcha} from '../lib/bm-captcha.js';
+
+const LOG_ALL_HREFS = false;
 const BACKGROUND_WIDTH = 700;
 const BACKGROUND_HEIGHT = 700;
 const ASSET_INTERSECT_HEIGHT = 10;
@@ -53,6 +57,12 @@ const allHrefs = [
   GROUND_HREF,
 ];
 
+if (LOG_ALL_HREFS) {
+  allHrefs.forEach((href, ix) => {
+    console.log('href', href, 'ix', ix);
+  });
+}
+
 const LOADING = 'loading...';
 
 let score = LOADING;
@@ -61,8 +71,6 @@ let captchaDisplayed = false;
 let sessionClosed = false;
 let boardLoaded = false;
 let boardLoading = false;
-const captchaDisplayCooldown = 0;
-
 let sessionClosedCountdown = 0;
 
 const onLoad = async () => {
@@ -573,7 +581,6 @@ const updateScore = async () => {
   const obstacleElts = [...document.getElementsByClassName('obstacle')];
   const rewardElts = [...document.getElementsByClassName('reward')];
   const penaltyElts = [...document.getElementsByClassName('penalty')];
-  const resetCooldown = true;
   for (let foregroundEltIx = 0; foregroundEltIx < foregroundElts.length; foregroundEltIx++) {
     const foregroundElt = foregroundElts[foregroundEltIx];
     for (let rewardEltIx = 0; rewardEltIx < rewardElts.length; rewardEltIx++) {
@@ -591,6 +598,13 @@ const updateScore = async () => {
       const penaltyElt = penaltyElts[penaltyEltIx];
       if (intersect(penaltyElt, foregroundElt)) {
         await incrementScore(penaltyElt);
+      }
+    }
+
+    for (let obstacleEltIx = 0; obstacleEltIx < obstacleElts.length; obstacleEltIx++) {
+      const obstacleElt = obstacleElts[obstacleEltIx];
+      if (intersect(obstacleElt, foregroundElt)) {
+        await incrementScore(obstacleElt);
       }
     }
   }
@@ -627,3 +641,10 @@ const showCaptcha = () => {
   };
   bmcaptcha.showCaptcha(callback);
 };
+
+window.bmcaptcha = bmcaptcha;
+window.onLoad = onLoad;
+window.moveUp = moveUp;
+window.moveLeft = moveLeft;
+window.moveRight = moveRight;
+window.updateAccount = updateAccount;

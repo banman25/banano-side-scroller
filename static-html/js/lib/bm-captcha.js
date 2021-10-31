@@ -1,3 +1,5 @@
+import {set} from '../lib/util.js';
+
 const bmcaptcha = {};
 bmcaptcha.MAX_IMAGES = 6;
 bmcaptcha.captchaClickedCallback = () => {};
@@ -104,3 +106,5 @@ bmcaptcha.showCaptcha = (callback) => {
   request.secretKey = bmcaptcha.secretKey;
   bmcaptcha.postJSON('bm-captcha-request', request, callbackWrapper);
 };
+
+export {bmcaptcha};
