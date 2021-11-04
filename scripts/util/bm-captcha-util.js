@@ -77,7 +77,13 @@ const captcha = async (req, res) => {
   response.images = [];
   if (registeredSites.has(secretKey)) {
     const site = registeredSites.get(secretKey);
-    site.answer = randomUtil.getRandomArrayElt(answers);
+    if (answers.length == 0) {
+      await updateAnswers();
+    }
+
+    const ix = getRandomInt(0, answers.length);
+    site.answer = answers[ix];
+    array.splice(ix, 1);
 
     if (site.answer) {
       response.success = true;
