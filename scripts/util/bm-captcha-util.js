@@ -83,7 +83,7 @@ const captcha = async (req, res) => {
 
     const ix = getRandomInt(0, answers.length);
     site.answer = answers[ix];
-    array.splice(ix, 1);
+    answers.splice(ix, 1);
 
     if (site.answer) {
       response.success = true;
