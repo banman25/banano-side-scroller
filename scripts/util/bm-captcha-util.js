@@ -81,7 +81,7 @@ const captcha = async (req, res) => {
       await updateAnswers();
     }
 
-    const ix = getRandomInt(0, answers.length);
+    const ix = randomUtil.getRandomInt(0, answers.length);
     site.answer = answers[ix];
     answers.splice(ix, 1);
 
