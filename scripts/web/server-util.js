@@ -409,7 +409,7 @@ const initWebServer = async () => {
         const serverChunkId = tempData.chunk_ids[ix];
         if (serverChunkId != id) {
           data.message = `client chunk id '${id}' is not same as server chunk id '${serverChunkId}'`;
-          logError = true;
+          // logError = true;
         } else {
           if (colIx > tempData.prev_col_ix) {
             tempData.prev_col_ix = colIx;
