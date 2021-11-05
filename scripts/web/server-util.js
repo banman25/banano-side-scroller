@@ -448,15 +448,15 @@ const initWebServer = async () => {
                     break;
                   default:
                     data.message = `in chunk '${ix}', client value '${value}' is not a penalty '${JSON.stringify(PENALTY_IXS)}' or a reward '${REWARD_IX}'`;
-                    logError = true;
+                    // logError = true;
                 }
               } else {
                 data.message = `in chunk '${ix}', client col_ix '${colIx}' not found in server chunk of length ${chunk.length}`;
-                logError = true;
+                // logError = true;
               }
             } else {
               data.message = `in chunk '${ix}', client chunk_id '${id}' not found in server chunk_ids ${Object.keys(chunksById)}`;
-              logError = true;
+              // logError = true;
             }
           } else {
             data.message = `in chunk '${ix}', client col_ix '${colIx}' is not server col_ix '${tempData.prev_col_ix}'`;
