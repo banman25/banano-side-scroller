@@ -172,7 +172,9 @@ const getAccountBalances = async () => {
         const accountFile = path.join(config.bananojsCacheDataDir, file);
         const data = fs.readFileSync(accountFile, 'UTF-8');
         const score = JSON.parse(data).score;
-        accounts.push({account: file, score: score});
+        if (parseInt(score,10) !== 0) {
+          accounts.push({account: file, score: score});
+        }
       });
     }
   } finally {
@@ -190,16 +192,18 @@ const getHistogram = async () => {
         const accountFile = path.join(config.bananojsCacheDataDir, file);
         const data = fs.readFileSync(accountFile, 'UTF-8');
         const score = JSON.parse(data).score;
-        const scoreBucket = Math.max(1, Number(score).toString().length);
-        const bucket = `Score 1${'0'.repeat(scoreBucket-1)} to 1${'0'.repeat(scoreBucket)}`;
+        if(parseInt(score,10) > 0) {
+          const scoreBucket = Math.max(1, Number(score).toString().length);
+          const bucket = `Score 1${'0'.repeat(scoreBucket-1)} to 1${'0'.repeat(scoreBucket)}`;
 
-        // loggingUtil.log(dateUtil.getDate(), 'histogram', 'score', score, 'bucket', bucket);
+          // loggingUtil.log(dateUtil.getDate(), 'histogram', 'score', score, 'bucket', bucket);
 
-        if (histogramMap.has(bucket)) {
-          const old = histogramMap.get(bucket);
-          histogramMap.set(bucket, old+2);
-        } else {
-          histogramMap.set(bucket, 1);
+          if (histogramMap.has(bucket)) {
+            const old = histogramMap.get(bucket);
+            histogramMap.set(bucket, old+2);
+          } else {
+            histogramMap.set(bucket, 1);
+          }
         }
       });
     }

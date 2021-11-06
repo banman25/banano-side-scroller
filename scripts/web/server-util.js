@@ -176,6 +176,7 @@ const initWebServer = async () => {
     // 'config.adminKey', config.adminKey);
 
     data.admin = (adminKeyCookie == config.adminKey);
+    data.show_admin_login = (config.adminKey.length > 0);
 
     if (data.admin) {
       data.accounts = await bananojsCacheUtil.getAccountBalances();
