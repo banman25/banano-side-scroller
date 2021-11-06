@@ -22,6 +22,6 @@
 
     npm run screenrestart;
 
-i### todo
+### todo
 
-    add a manual payment page
+	Feature-Request: Alltime and Daily-Highscore-list
