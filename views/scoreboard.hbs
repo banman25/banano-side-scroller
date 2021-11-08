@@ -30,6 +30,27 @@
           </tr>
         {{/each}}
       </table>
+      <p>
+        Previous High Scores: {{high_scores.length}}
+      <p>
+      <table class="t_center align_top display_inline_block bordered">
+        {{#if high_scores}}
+          <tr>
+            <td class="align_top">Date</td>
+            <td class="align_top">High Score</td>
+          </tr>
+        {{/if}}
+        {{#each high_scores}}
+          <tr>
+            <td class="align_top">{{date}}</td>
+            <td class="align_top">{{score}}</td>
+          </tr>
+        {{else}}
+          <tr>
+            <td class="align_top">No Entries</td>
+          </tr>
+        {{/each}}
+      </table>
       {{#if show_admin_login}}
         {{#if admin}}
           <p>

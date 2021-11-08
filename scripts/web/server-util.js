@@ -189,6 +189,9 @@ const initWebServer = async () => {
     const histogram = await bananojsCacheUtil.getHistogram();
     data.histogram = histogram;
 
+    const highScores = await paymentUtil.getHighScores();
+    data.high_scores = highScores;
+
     data.title = config.title;
 
     // loggingUtil.log(dateUtil.getDate(), 'scoreboard', JSON.stringify(data));

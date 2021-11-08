@@ -23,5 +23,3 @@
     npm run screenrestart;
 
 ### todo
-
-	Feature-Request: Alltime and Daily-Highscore-list

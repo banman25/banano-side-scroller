@@ -40,6 +40,10 @@ const init = (_config, _loggingUtil) => {
   if (!fs.existsSync(config.sessionPayoutDataDir)) {
     fs.mkdirSync(config.sessionPayoutDataDir, {recursive: true});
   }
+
+  if (!fs.existsSync(config.highScoreDataDir)) {
+    fs.mkdirSync(config.highScoreDataDir, {recursive: true});
+  }
 };
 
 const deactivate = () => {
@@ -177,6 +181,56 @@ const getPayoutBalance = (accountInfo) => {
   return payoutBalance;
 };
 
+const getHighScores = async () => {
+  const highScores = [];
+  const mutexRelease = await mutex.acquire();
+  try {
+    if (fs.existsSync(config.highScoreDataDir)) {
+      fs.readdirSync(config.highScoreDataDir).forEach((fileNm) => {
+        const file = path.join(config.highScoreDataDir, fileNm);
+        const data = fs.readFileSync(file, 'UTF-8');
+        const highScore = parseInt(data, 10);
+        highScores.push({date: fileNm, score: highScore});
+      });
+    }
+  } finally {
+    mutexRelease();
+  }
+  return highScores;
+};
+
+const setHighScore = async (score) => {
+  score = parseInt(score, 10);
+  const mutexRelease = await mutex.acquire();
+  try {
+    const date = dateUtil.getDate().substring(0, 10);
+    const file = path.join(config.highScoreDataDir, date);
+    let isHighScore = false;
+    if (!fs.existsSync(file)) {
+      isHighScore = true;
+    } else {
+      const data = fs.readFileSync(file, 'UTF-8');
+      const highScore = parseInt(data, 10);
+
+      loggingUtil.log(dateUtil.getDate(), 'setHighScore', 'score',
+          score, 'highScore', highScore );
+
+      if (score > highScore) {
+        isHighScore = true;
+      }
+    }
+
+    if (isHighScore) {
+      const filePtr = fs.openSync(file, 'w');
+      fs.writeSync(filePtr, score.toString());
+      fs.closeSync(filePtr);
+    }
+  } finally {
+    mutexRelease();
+  }
+  return accounts;
+};
+
 const payEverybodyAndReopenSession = async () => {
   try {
     const scores = await bananojsCacheUtil.getAndClearAllScores();
@@ -185,6 +239,8 @@ const payEverybodyAndReopenSession = async () => {
       const scoreElt = scores[scoreIx];
       maxScore += BigInt(scoreElt.score);
     }
+
+    await setHighScore(maxScore);
 
     loggingUtil.log(dateUtil.getDate(), 'payment', 'scores.length',
         scores.length, 'maxScore', maxScore);
@@ -248,3 +304,4 @@ exports.setSessionStartTime = setSessionStartTime;
 exports.payEverybodyAndReopenSession = payEverybodyAndReopenSession;
 exports.receiveWalletPending = receiveWalletPending;
 exports.getWalletAccount = getWalletAccount;
+exports.getHighScores = getHighScores;

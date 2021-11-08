@@ -519,6 +519,7 @@
   "adminKey":"",
   "blackMonkeyDataUrl": "",
   "numberOfChunksPerBoard": 10,
+  "highScoreDataDir": "data/highScore",
   "bananojsCacheDataDir": "data/bananojsCache",
   "sessionPayoutDataDir": "data/sessionPayout",
   "activeTimeMs": 28800000,
