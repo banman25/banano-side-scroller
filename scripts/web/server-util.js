@@ -233,6 +233,7 @@ const initWebServer = async () => {
         if (!await paymentUtil.isSessionClosed()) {
           await bananojsCacheUtil.incrementScore(account, tempData.score);
         }
+        delete tempData.chunk_ids;
       }
       tempData.score = 0;
     };
@@ -526,27 +527,32 @@ const initWebServer = async () => {
     } else {
       data.success = true;
       data.message = 'board';
-      data.chunk_ids = [];
-      if (config.chunkTestPattern) {
-        chunkIds.forEach((id) => {
-          data.chunk_ids.push(id);
-        });
-        data.chunk_ids.reverse();
-        chunkIds.forEach((id) => {
-          data.chunk_ids.push(id);
-        });
-        // loggingUtil.log(dateUtil.getDate(), 'board', 'account', account, 'data.chunk_ids', data.chunk_ids);
-      } else {
-        for (let x = 0; x < config.numberOfChunksPerBoard; x++) {
-          data.chunk_ids.push(randomUtil.getRandomArrayElt(chunkIds));
+      const tempData = getTempData(account, ip);
+      if (tempData.chunk_ids === undefined) {
+        tempData.chunk_ids = [];
+        if (config.chunkTestPattern) {
+          chunkIds.forEach((id) => {
+            tempData.chunk_ids.push(id);
+          });
+          tempData.chunk_ids.reverse();
+          chunkIds.forEach((id) => {
+            tempData.chunk_ids.push(id);
+          });
+          // loggingUtil.log(dateUtil.getDate(), 'board', 'account', account, 'data.chunk_ids', data.chunk_ids);
+        } else {
+          for (let x = 0; x < config.numberOfChunksPerBoard; x++) {
+            tempData.chunk_ids.push(randomUtil.getRandomArrayElt(chunkIds));
+          }
         }
       }
-      const tempData = getTempData(account, ip);
-      tempData.chunk_ids = data.chunk_ids;
+      tempData.score = 0;
       tempData.chunk_ix = 0;
       tempData.prev_col_ix = -1;
       tempData.reward_set = new Set();
+
+      data.chunk_ids = tempData.chunk_ids;
       // loggingUtil.log(dateUtil.getDate(), 'board', 'account', account, 'tempData', tempData);
+      // loggingUtil.log(dateUtil.getDate(), 'board', 'account', account, 'data.chunk_ids', data.chunk_ids);
     }
 
     if (!data.success) {
