@@ -228,7 +228,6 @@ const setHighScore = async (score) => {
   } finally {
     mutexRelease();
   }
-  return accounts;
 };
 
 const payEverybodyAndReopenSession = async () => {
