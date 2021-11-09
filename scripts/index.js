@@ -60,6 +60,7 @@ const paymentFn = async () => {
       await paymentUtil.receiveWalletPending();
       if (await paymentUtil.isSessionClosed()) {
         await paymentUtil.payEverybodyAndReopenSession();
+        await webServerUtil.clearTempData();
       }
     } catch (error) {
       loggingUtil.log(dateUtil.getDate(), 'paymentFn', 'error', error.message);

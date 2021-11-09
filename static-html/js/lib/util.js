@@ -11,6 +11,13 @@ const addChildSvgElement = (parent, childType, attributes) => {
   return child;
 };
 
+const addChildElement = (parent, childType, attributes) => {
+  const child = document.createElement(childType);
+  parent.appendChild(child);
+  addAttributes(child, attributes);
+  return child;
+};
+
 const get = (elt, name) => {
   return elt.getAttribute(name);
 };
@@ -37,4 +44,8 @@ const displayErrorMessage = (message) => {
   }
 };
 
-export {clear, get, set, addChildSvgElement, displayErrorMessage};
+const addText = (parent, childText) => {
+  parent.appendChild(document.createTextNode(childText));
+};
+
+export {clear, get, set, addText, addChildElement, addChildSvgElement, displayErrorMessage};

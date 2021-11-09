@@ -646,7 +646,12 @@ const getAdminKeyCookie = (req) => {
   return req.signedCookies.admin_key;
 };
 
+const clearTempData = () => {
+  tempDataByAccount.clear();
+};
+
 // exports
 exports.init = init;
 exports.deactivate = deactivate;
 exports.setCloseProgramFunction = setCloseProgramFunction;
+exports.clearTempData = clearTempData;

@@ -7,7 +7,7 @@
   <tr>
     <td class="align_top">
       <a href="{{wallet_account_url}}" target="_blank">
-        {{wallet_account}}
+        <span id="walletAccount">{{wallet_account}}</span>
       </a>
       <p>
         Number of Entries: {{histogram.length}}
@@ -95,7 +95,13 @@
             </button>
         {{/if}}
       {{/if}}
+      <p>
+        Most Recent Payouts:
+      <p>
+      <table id="payouts" class="t_center align_top display_inline_block bordered">
+      </table>
     </td>
   </tr>
 </table>
+<script type="module" src="js-lib/bananocoin-bananojs.js"></script>
 <script type="module" src="js/views/scoreboard.js"></script>
