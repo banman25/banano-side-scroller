@@ -411,61 +411,65 @@ const initWebServer = async () => {
         data.message = `client chunk index '${ix}' is not same as server chunk index '${tempData.chunk_ix}'`;
         // logError = true;
       } else {
-        const serverChunkId = tempData.chunk_ids[ix];
-        if (serverChunkId != id) {
-          data.message = `client chunk id '${id}' is not same as server chunk id '${serverChunkId}'`;
-          // logError = true;
+        if (tempData.chunk_ids == undefined) {
+          data.message = `client chunk_ids were reset, need to request new board.`;
         } else {
-          if (colIx > tempData.prev_col_ix) {
-            tempData.prev_col_ix = colIx;
-          }
-          /**
+          const serverChunkId = tempData.chunk_ids[ix];
+          if (serverChunkId != id) {
+            data.message = `client chunk id '${id}' is not same as server chunk id '${serverChunkId}'`;
+          // logError = true;
+          } else {
+            if (colIx > tempData.prev_col_ix) {
+              tempData.prev_col_ix = colIx;
+            }
+            /**
            * allow tempData.prev_col_ix - 2 because you can use the back arrows to get rewards.
            */
-          if ((colIx >= tempData.prev_col_ix - 2)) {
-            if (chunksById[id] !== undefined) {
-              const chunk = chunksById[id];
-              // loggingUtil.log('increment_score', 'chunk', chunk);
-              if (chunk[colIx] !== undefined) {
-                const col = chunk[colIx];
-                // loggingUtil.log('increment_score', 'col', col);
-                const value = col[rowIx];
-                switch (value) {
-                  case REWARD_IX:
+            if ((colIx >= tempData.prev_col_ix - 2)) {
+              if (chunksById[id] !== undefined) {
+                const chunk = chunksById[id];
+                // loggingUtil.log('increment_score', 'chunk', chunk);
+                if (chunk[colIx] !== undefined) {
+                  const col = chunk[colIx];
+                  // loggingUtil.log('increment_score', 'col', col);
+                  const value = col[rowIx];
+                  switch (value) {
+                    case REWARD_IX:
                     // loggingUtil.log('increment_score', 'accountData.score', accountData.score);
-                    const rewardKey = `chunk:${ix};col:${colIx};row:${rowIx}`;
-                    if (tempData.reward_set.has(rewardKey)) {
-                      data.message = `in chunk '${ix}', reward key '${rewardKey}' was already claimed.'`;
-                      logError = true;
-                    } else {
-                      tempData.reward_set.add(rewardKey);
-                      tempData.score++;
+                      const rewardKey = `chunk:${ix};col:${colIx};row:${rowIx}`;
+                      if (tempData.reward_set.has(rewardKey)) {
+                        data.message = `in chunk '${ix}', reward key '${rewardKey}' was already claimed.'`;
+                        logError = true;
+                      } else {
+                        tempData.reward_set.add(rewardKey);
+                        tempData.score++;
+                        data.success = true;
+                        data.message = 'reward';
+                      }
+                      break;
+                    case PENALTY_IXS[0]:
+                    case PENALTY_IXS[1]:
+                      // loggingUtil.log('increment_score', 'penalty', 'tempData.score', tempData.score);
+                      tempData.score = 0;
                       data.success = true;
-                      data.message = 'reward';
-                    }
-                    break;
-                  case PENALTY_IXS[0]:
-                  case PENALTY_IXS[1]:
-                  // loggingUtil.log('increment_score', 'penalty', 'tempData.score', tempData.score);
-                    tempData.score = 0;
-                    data.success = true;
-                    data.message = 'penalty';
-                    break;
-                  default:
-                    data.message = `in chunk '${ix}', client value '${value}' is not a penalty '${JSON.stringify(PENALTY_IXS)}' or a reward '${REWARD_IX}'`;
+                      data.message = 'penalty';
+                      break;
+                    default:
+                      data.message = `in chunk '${ix}', client value '${value}' is not a penalty '${JSON.stringify(PENALTY_IXS)}' or a reward '${REWARD_IX}'`;
                     // logError = true;
+                  }
+                } else {
+                  data.message = `in chunk '${ix}', client col_ix '${colIx}' not found in server chunk of length ${chunk.length}`;
+                // logError = true;
                 }
               } else {
-                data.message = `in chunk '${ix}', client col_ix '${colIx}' not found in server chunk of length ${chunk.length}`;
-                // logError = true;
+                data.message = `in chunk '${ix}', client chunk_id '${id}' not found in server chunk_ids ${Object.keys(chunksById)}`;
+              // logError = true;
               }
             } else {
-              data.message = `in chunk '${ix}', client chunk_id '${id}' not found in server chunk_ids ${Object.keys(chunksById)}`;
-              // logError = true;
-            }
-          } else {
-            data.message = `in chunk '${ix}', client col_ix '${colIx}' is not server col_ix '${tempData.prev_col_ix}'`;
+              data.message = `in chunk '${ix}', client col_ix '${colIx}' is not server col_ix '${tempData.prev_col_ix}'`;
             // logError = true;
+            }
           }
         }
       }
