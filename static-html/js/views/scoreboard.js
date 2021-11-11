@@ -93,6 +93,7 @@ const loadPayouts = async () => {
           countByAmount[historyElt.account] = 0;
         }
 
+        sendByAmount[historyElt.account] += parseInt(balanceParts.banano, 10) * 100;
         sendByAmount[historyElt.account] += parseInt(balanceParts.banoshi, 10);
         countByAmount[historyElt.account]++;
       }
@@ -131,9 +132,9 @@ const loadPayouts = async () => {
     addHeader();
 
     accounts.forEach((account) => {
-      const banano = sendByAmount[account];
+      const banano = sendByAmount[account] / 100;
       const count = countByAmount[account];
-      const average = parseInt(banano/count, 10);
+      const average = banano/count;
       const trElt = addChildElement(payoutsElt, 'tr');
       const accountElt = addChildElement(trElt, 'td', {
         'class': 'align_top bordered',
@@ -148,9 +149,9 @@ const loadPayouts = async () => {
         'class': 'align_top bordered',
       });
       addText(accountElt, account);
-      addText(amountElt, banano);
+      addText(amountElt, banano.toFixed(2));
       addText(countElt, count);
-      addText(averageElt, average);
+      addText(averageElt, average.toFixed(2));
     });
   }
 };

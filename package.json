@@ -1,6 +1,6 @@
 {
   "name": "side-scroller",
-  "version": "1.1.12",
+  "version": "1.1.13",
   "description": "side-scroller",
   "repository": {
     "type": "git",
@@ -10,7 +10,8 @@
     "eslint": "eslint --fix 'scripts/**/*.js';eslint --fix 'static-html/**/*.js';",
     "jsonlint": "jsonlint -q package.json;jsonlint -q scripts;jsonlint -q config.json;",
     "new-config": "node scripts/new-config.js",
-    "preflight": "find . -name '.DS_Store' | xargs rm;npm update;npm outdated;npm i;npm audit fix;npm run eslint;npm run jsonlint;",
+    "npm-check-updates": "npm-check-updates --target minor -u",
+    "preflight": "find . -name '.DS_Store' | xargs rm;npm update;npm run npm-check-updates;npm outdated;npm i;npm audit fix;npm run eslint;npm run jsonlint;",
     "start": "node -max-old-space-size=1700 scripts/index.js",
     "screenstart": "screen -dmSL side_scroller npm start;screen -x side_scroller",
     "screenrestart": "npm stop;screen -x side_scroller;screen -dmSL side_scroller npm start;screen -x side_scroller",
@@ -19,17 +20,17 @@
   "author": "Coranos",
   "license": "MIT",
   "dependencies": {
-    "@bananocoin/bananojs": "^2.4.21",
+    "@bananocoin/bananojs": "^2.4.24",
     "await-semaphore": "^0.1.3",
     "blakejs": "^1.1.1",
-    "body-parser": "^1.18.3",
-    "cookie-parser": "^1.4.4",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
-    "express": "^4.16.4",
+    "express": "^4.17.1",
     "express-handlebars": "^5.3.4",
     "mkdirp": "^1.0.4",
     "png-js": "^1.0.0",
-    "socket.io": "^4.3.1",
+    "socket.io": "^4.3.2",
     "socket.io-client": "^4.3.2"
   },
   "preferGlobal": true,
@@ -39,6 +40,7 @@
     "eslint": "^7.32.0",
     "eslint-config-google": "^0.14.0",
     "mocha": "^9.1.3",
+    "npm-check-updates": "^12.0.2",
     "nyc": "^15.1.0"
   }
 }
