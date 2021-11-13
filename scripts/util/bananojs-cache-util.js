@@ -150,9 +150,10 @@ const getAndClearAllScores = async () => {
       fs.readdirSync(config.bananojsCacheDataDir).forEach((file) => {
         const accountFile = path.join(config.bananojsCacheDataDir, file);
         const data = fs.readFileSync(accountFile, 'UTF-8');
+        const json = JSON.parse(data);
         allScores.push({
           account: file,
-          score: JSON.parse(data).score,
+          score: json.score,
         });
         fs.unlinkSync(accountFile);
       });

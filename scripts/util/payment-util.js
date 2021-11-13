@@ -234,9 +234,15 @@ const payEverybodyAndReopenSession = async () => {
   try {
     const scores = await bananojsCacheUtil.getAndClearAllScores();
     let maxScore = ZERO;
+    let highScore = ZERO;
     for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
       const scoreElt = scores[scoreIx];
-      maxScore += BigInt(scoreElt.score);
+      console.log('scoreElt', scoreElt);
+      const score = BigInt(scoreElt.score);
+      maxScore += score;
+      if (score > highScore) {
+        highScore = score;
+      }
     }
 
     await setHighScore(maxScore);

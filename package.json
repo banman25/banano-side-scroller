@@ -1,6 +1,6 @@
 {
   "name": "side-scroller",
-  "version": "1.1.14",
+  "version": "1.1.15",
   "description": "side-scroller",
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "express-handlebars": "^5.3.4",
+    "express-handlebars": "^5.3.5",
     "mkdirp": "^1.0.4",
     "png-js": "^1.0.0",
     "socket.io": "^4.3.2",
