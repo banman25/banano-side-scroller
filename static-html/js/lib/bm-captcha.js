@@ -64,7 +64,11 @@ bmcaptcha.init = (id, captchaClickedCallback) => {
       'id': 'bm_captcha_image_' + imageIx,
       'data_answer': imageIx,
       'ismap': 'ismap',
+      'style': 'width:175px;',
     });
+    if (imageIx == 4) {
+      addChildElement(captchaAnchorElt, 'br');
+    }
   }
 };
 
