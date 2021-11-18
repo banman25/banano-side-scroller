@@ -245,7 +245,7 @@ const payEverybodyAndReopenSession = async () => {
       }
     }
 
-    await setHighScore(maxScore);
+    await setHighScore(highScore);
 
     loggingUtil.log(dateUtil.getDate(), 'payment', 'scores.length',
         scores.length, 'maxScore', maxScore);
