@@ -87,7 +87,7 @@ const captcha = async (req, res) => {
 
     if (site.answer) {
       response.success = true;
-      response.images = site.answer.data;
+      response.images = site.answer;
     } else {
       response.success = false;
     }

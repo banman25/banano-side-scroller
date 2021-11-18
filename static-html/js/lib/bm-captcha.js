@@ -64,9 +64,9 @@ bmcaptcha.init = (id, captchaClickedCallback) => {
       'id': 'bm_captcha_image_' + imageIx,
       'data_answer': imageIx,
       'ismap': 'ismap',
-      'style': 'width:175px;',
+      'style': 'width:150px;',
     });
-    if (imageIx == 4) {
+    if (imageIx == 3) {
       addChildElement(captchaAnchorElt, 'br');
     }
   }
@@ -94,14 +94,18 @@ bmcaptcha.hideCaptcha = () => {
 
 bmcaptcha.showCaptcha = (callback) => {
   const callbackWrapper = (json) => {
-    // console.log('showCaptcha', json);
+    console.log('showCaptcha', json);
     const captchaElt = document.querySelector('#bm_captcha');
     captchaElt.setAttribute('style', 'display:block');
-    const keys = [...Object.keys(json.images)];
+    const keys = [...Object.keys(json.images.monkeys)];
+    console.log('showCaptcha', 'keys', keys);
     keys.forEach((imageIx) => {
       const selector = '#bm_captcha_image_' + imageIx;
+      console.log('showCaptcha', 'selector', selector);
       const captchaImageElt = document.querySelector(selector);
-      const data = json.images[imageIx];
+      console.log('showCaptcha', 'captchaImageElt', captchaImageElt);
+      const data = json.images.monkeys[imageIx];
+      console.log('showCaptcha', 'data', data);
       captchaImageElt.setAttribute('src', data);
     });
     callback(json);
