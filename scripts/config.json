@@ -496,8 +496,12 @@
       ]
     }
   ],
-  "defaultDataPack": "basic",
+  "defaultDataPack": "minimal",
   "dataPacks": [
+    {
+      "name": "minimal",
+      "url": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/minimal/static-html/"
+    },
     {
       "name": "basic",
       "url": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/basic/static-html/"
@@ -516,7 +520,7 @@
   },
   "bananodeApiUrl": "",
   "cookieSecret": "",
-  "adminKey":"",
+  "adminKey": "",
   "blackMonkeyDataUrl": "",
   "numberOfChunksPerBoard": 10,
   "highScoreDataDir": "data/highScore",
