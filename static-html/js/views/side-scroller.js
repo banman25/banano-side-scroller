@@ -74,6 +74,7 @@ let boardLoading = false;
 let sessionClosedCountdown = 0;
 
 const onLoad = async () => {
+  document.addEventListener('keyup', keyUp, false);
   loadAccount();
   const dataPacksElt = document.querySelector('#data_packs');
   dataPacksElt.addEventListener('change', async (event) => {
@@ -640,6 +641,23 @@ const showCaptcha = () => {
     // set(gameElt, 'style', 'display:none');
   };
   bmcaptcha.showCaptcha(callback);
+};
+
+
+const keyUp = (e) => {
+  switch (e.keyCode) {
+    case 37:
+      moveLeft();
+    case 32:
+    case 38:
+      moveUp();
+      break;
+    case 39:
+      moveRight();
+      break;
+    default:
+      console.log('keyUp', e.keyCode);
+  }
 };
 
 window.bmcaptcha = bmcaptcha;
