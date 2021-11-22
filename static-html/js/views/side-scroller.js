@@ -72,6 +72,7 @@ let sessionClosed = false;
 let boardLoaded = false;
 let boardLoading = false;
 let sessionClosedCountdown = 0;
+let continueConfetti = false;
 
 const onLoad = async () => {
   document.addEventListener('keyup', keyUp, false);
@@ -531,6 +532,7 @@ const moveForegroundDown = async () => {
       set(foregroundElt, 'y', FOREGROUND_MAX_Y);
     }
     if (penaltyJump) {
+      winConfetti();
       moveUp();
       if ((!score.startsWith('0')) && (score != LOADING)) {
         score == LOADING;
@@ -648,6 +650,7 @@ const keyUp = (e) => {
   switch (e.keyCode) {
     case 37:
       moveLeft();
+      break;
     case 32:
     case 38:
       moveUp();
@@ -659,6 +662,66 @@ const keyUp = (e) => {
       console.log('keyUp', e.keyCode);
   }
 };
+
+
+const winConfetti = () => {
+  console.log('winConfetti', 'continueConfetti', continueConfetti);
+  if (continueConfetti) {
+    return;
+  }
+  continueConfetti = true;
+  const count = 20;
+  const defaults = {
+    origin: {y: 0.7},
+    shapes: ['square', 'circle', 'emoji:🔥'],
+    colors: ['#FFFF00', '#00FF00'],
+  };
+
+  /**
+  * @param {String} particleRatio the particle ratio
+  * @param {String} opts the options
+  */
+  function fire(particleRatio, opts) {
+    confetti(Object.assign({}, defaults, opts, {
+      particleCount: Math.floor(count * particleRatio),
+    }));
+  }
+
+  if (continueConfetti) {
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+    });
+  }
+  if (continueConfetti) {
+    fire(0.2, {
+      spread: 60,
+    });
+  }
+  if (continueConfetti) {
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+    });
+  }
+  if (continueConfetti) {
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+    });
+  }
+  if (continueConfetti) {
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+    });
+  }
+  continueConfetti = false;
+};
+
 
 window.bmcaptcha = bmcaptcha;
 window.onLoad = onLoad;
