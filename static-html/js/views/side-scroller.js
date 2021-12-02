@@ -73,6 +73,7 @@ let boardLoaded = false;
 let boardLoading = false;
 let sessionClosedCountdown = 0;
 let continueConfetti = false;
+let canJump = true;
 
 const onLoad = async () => {
   document.addEventListener('keyup', keyUp, false);
@@ -381,7 +382,9 @@ const loadBoard = async (groupSvgElt) => {
 
 const moveUp = () => {
   // console.log('moveUp');
-  moveForeground(0, -MOVE_Y);
+  if (canJump) {
+    moveForeground(0, -MOVE_Y);
+  }
   return false;
 };
 
@@ -510,15 +513,18 @@ const moveForegroundDown = async () => {
     let penaltyJump = false;
     let penlatyJumpElt = undefined;
     let moveDown = true;
+    canJump = false;
     obstacleElts.forEach((obstacleElt) => {
       if (intersect(obstacleElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, ASSET_SIZE)) {
         moveDown = false;
+        canJump = true;
       }
     });
     for (let penaltyEltIx = 0; penaltyEltIx < penaltyElts.length; penaltyEltIx++) {
       const penaltyElt = penaltyElts[penaltyEltIx];
       if (intersect(penaltyElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, PENALTY_SIZE)) {
         moveDown = false;
+        canJump = true;
         penaltyJump = true;
         penlatyJumpElt = penaltyElt;
       }
