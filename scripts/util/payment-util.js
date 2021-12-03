@@ -12,6 +12,7 @@ const bananojsCacheUtil = require('./bananojs-cache-util.js');
 // constants
 const ZERO = BigInt(0);
 const ONE_HUNDRED = BigInt(100);
+const VERSION = require('../../package.json').version;
 
 // variables
 /* eslint-disable no-unused-vars */
@@ -43,6 +44,10 @@ const init = (_config, _loggingUtil) => {
 
   if (!fs.existsSync(config.highScoreDataDir)) {
     fs.mkdirSync(config.highScoreDataDir, {recursive: true});
+  }
+
+  if (!fs.existsSync(config.accountHighScoreDataDir)) {
+    fs.mkdirSync(config.accountHighScoreDataDir, {recursive: true});
   }
 };
 
@@ -202,6 +207,65 @@ const getPayoutBalance = (accountInfo) => {
   return payoutBalance;
 };
 
+const getAccountHighScores = async () => {
+  const highScores = [];
+  const mutexRelease = await mutex.acquire();
+  try {
+    if (fs.existsSync(config.accountHighScoreDataDir)) {
+      fs.readdirSync(config.accountHighScoreDataDir).forEach((fileNm) => {
+        const file = path.join(config.accountHighScoreDataDir, fileNm);
+        const data = fs.readFileSync(file, 'UTF-8');
+        const json = JSON.parse(data);
+        const score = parseInt(json.score, 10);
+        const account = json.account;
+        const version = json.version;
+        highScores.push({date: fileNm, score: score, account: account, version: version});
+      });
+    }
+  } finally {
+    mutexRelease();
+  }
+  return highScores;
+};
+
+const setAccountHighScore = async (account, version, score) => {
+  score = parseInt(score, 10);
+  const mutexRelease = await mutex.acquire();
+  try {
+    const date = dateUtil.getDate().substring(0, 10);
+    const file = path.join(config.accountHighScoreDataDir, date);
+    let isHighScore = false;
+    if (!fs.existsSync(file)) {
+      isHighScore = true;
+    } else {
+      const data = fs.readFileSync(file, 'UTF-8');
+      const json = JSON.parse(data);
+      const highScore = parseInt(json.score, 10);
+
+      loggingUtil.log(dateUtil.getDate(), 'setAccountHighScore', 'score',
+          score, 'highScore', highScore );
+
+      if (score > highScore) {
+        isHighScore = true;
+      }
+    }
+
+    if (isHighScore) {
+      const filePtr = fs.openSync(file, 'w');
+      const json = {};
+      json.account = account;
+      json.version = version;
+      json.score = score.toString();
+      const data = JSON.stringify(json);
+      fs.writeSync(filePtr, data);
+      fs.closeSync(filePtr);
+    }
+  } finally {
+    mutexRelease();
+  }
+};
+
+
 const getHighScores = async () => {
   const highScores = [];
   const mutexRelease = await mutex.acquire();
@@ -256,6 +320,7 @@ const payEverybodyAndReopenSession = async () => {
     const scores = await bananojsCacheUtil.getAndClearAllScores();
     let maxScore = ZERO;
     let highScore = ZERO;
+    let highScoreAccount = '';
     for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
       const scoreElt = scores[scoreIx];
       console.log('scoreElt', scoreElt);
@@ -263,10 +328,12 @@ const payEverybodyAndReopenSession = async () => {
       maxScore += score;
       if (score > highScore) {
         highScore = score;
+        highScoreAccount = scoreElt.account;
       }
     }
 
     await setHighScore(highScore);
+    await setAccountHighScore(highScoreAccount, VERSION, highScore);
 
     loggingUtil.log(dateUtil.getDate(), 'payment', 'scores.length',
         scores.length, 'maxScore', maxScore);
@@ -333,3 +400,4 @@ exports.getWalletAccount = getWalletAccount;
 exports.getHighScores = getHighScores;
 exports.getSessionStatus = getSessionStatus;
 exports.setSessionStatus = setSessionStatus;
+exports.getAccountHighScores = getAccountHighScores;

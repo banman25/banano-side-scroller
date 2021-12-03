@@ -54,6 +54,31 @@
           </tr>
         {{/each}}
       </table>
+      <p>
+        Previous Account High Scores: {{account_high_scores.length}}
+      <p>
+      <table class="t_center align_top display_inline_block bordered">
+        {{#if account_high_scores}}
+          <tr>
+            <td class="align_top">Date</td>
+            <td class="align_top">High Score</td>
+            <td class="align_top">Account</td>
+            <td class="align_top">Version</td>
+          </tr>
+        {{/if}}
+        {{#each account_high_scores}}
+          <tr>
+            <td class="align_top">{{date}}</td>
+            <td class="align_top">{{score}}</td>
+            <td class="align_top">{{account}}</td>
+            <td class="align_top">{{version}}</td>
+          </tr>
+        {{else}}
+          <tr>
+            <td class="align_top">No Entries</td>
+          </tr>
+        {{/each}}
+      </table>
       {{#if show_admin_login}}
         {{#if admin}}
           <p>
