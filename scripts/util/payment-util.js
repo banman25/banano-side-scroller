@@ -74,6 +74,27 @@ const getSessionStartTimeFile = () => {
   return path.join(config.sessionPayoutDataDir, 'sessionStartTime.txt');
 };
 
+const getSessionStatusFile = () => {
+  return path.join(config.sessionPayoutDataDir, 'sessionStatus.txt');
+};
+
+const setSessionStatus = (text) => {
+  loggingUtil.log(dateUtil.getDate(), 'setSessionStatus', text);
+  const file = getSessionStatusFile();
+  const filePtr = fs.openSync(file, 'w');
+  fs.writeSync(filePtr, text);
+  fs.closeSync(filePtr);
+};
+
+const getSessionStatus = () => {
+  const file = getSessionStatusFile();
+  if (!fs.existsSync(file)) {
+    setSessionStartTime();
+  }
+  const data = fs.readFileSync(file, 'UTF-8');
+  return data;
+};
+
 const setSessionStartTime = () => {
   const file = getSessionStartTimeFile();
   const filePtr = fs.openSync(file, 'w');
@@ -310,3 +331,5 @@ exports.payEverybodyAndReopenSession = payEverybodyAndReopenSession;
 exports.receiveWalletPending = receiveWalletPending;
 exports.getWalletAccount = getWalletAccount;
 exports.getHighScores = getHighScores;
+exports.getSessionStatus = getSessionStatus;
+exports.setSessionStatus = setSessionStatus;

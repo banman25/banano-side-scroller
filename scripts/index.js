@@ -57,16 +57,29 @@ const init = async () => {
 const paymentFn = async () => {
   if (config.sessionAutomaticPaymentFlag) {
     try {
+      paymentUtil.setSessionStatus(`before check closed flag at ${dateUtil.getDate()}`);
+      const sessionClosedFlag = await paymentUtil.isSessionClosed();
+      paymentUtil.setSessionStatus(`after check closed flag, before check pending at ${dateUtil.getDate()}`);
       await paymentUtil.receiveWalletPending();
-      if (await paymentUtil.isSessionClosed()) {
+      paymentUtil.setSessionStatus(`after check pending at ${dateUtil.getDate()}`);
+      if (sessionClosedFlag) {
+        paymentUtil.setSessionStatus(`before reopening session at ${dateUtil.getDate()}`);
         await paymentUtil.payEverybodyAndReopenSession();
+        paymentUtil.setSessionStatus(`after reopening session at ${dateUtil.getDate()}`);
         await webServerUtil.clearTempData();
+        paymentUtil.setSessionStatus(`after temp data clear at ${dateUtil.getDate()}`);
+      } else {
+        paymentUtil.setSessionStatus(`session still open at ${dateUtil.getDate()}`);
       }
     } catch (error) {
+      paymentUtil.setSessionStatus(`error '${error.message}' at ${dateUtil.getDate()}`);
       loggingUtil.log(dateUtil.getDate(), 'paymentFn', 'error', error.message);
     } finally {
+      paymentUtil.setSessionStatus(`waiting for next poll, ${config.sessionStatusPollTimeMs} ms from ${dateUtil.getDate()}`);
       setTimeout(paymentFn, config.sessionStatusPollTimeMs);
     }
+  } else {
+    paymentUtil.setSessionStatus('auto payment disabled');
   }
 };
 

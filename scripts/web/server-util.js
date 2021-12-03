@@ -193,6 +193,7 @@ const initWebServer = async () => {
     data.high_scores = highScores;
 
     data.title = config.title;
+    data.session_status = await paymentUtil.getSessionStatus();
 
     // loggingUtil.log(dateUtil.getDate(), 'scoreboard', JSON.stringify(data));
 
