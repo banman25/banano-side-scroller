@@ -76,7 +76,7 @@ let continueConfetti = false;
 let canJump = true;
 
 const onLoad = async () => {
-  document.addEventListener('keyup', keyUp, false);
+  document.addEventListener('keydown', keyDown, false);
   loadAccount();
   const dataPacksElt = document.querySelector('#data_packs');
   dataPacksElt.addEventListener('change', async (event) => {
@@ -652,7 +652,7 @@ const showCaptcha = () => {
 };
 
 
-const keyUp = (e) => {
+const keyDown = (e) => {
   switch (e.keyCode) {
     case 37:
       moveLeft();
@@ -665,7 +665,7 @@ const keyUp = (e) => {
       moveRight();
       break;
     default:
-      console.log('keyUp', e.keyCode);
+      console.log('keyDown', e.keyCode);
   }
 };
 
