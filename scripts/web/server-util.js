@@ -118,6 +118,7 @@ const getTempData = (account, ip) => {
   if (!accountData.tempScoreByIp.has(ip)) {
     const ipData = {};
     ipData.score = 0;
+    ipData.lastRewardTs = Date.now();
     // loggingUtil.log(dateUtil.getDate(), 'getTempData', 'account', account, 'ip', ip, 'ipData', ipData);
     accountData.tempScoreByIp.set(ip, ipData);
   }
@@ -447,9 +448,15 @@ const initWebServer = async () => {
                         logError = true;
                       } else {
                         tempData.reward_set.add(rewardKey);
-                        tempData.score++;
-                        data.success = true;
-                        data.message = 'reward';
+                        if (tempData.lastRewardTs + config.rewardCooldownMs < Date.now()) {
+                          tempData.score++;
+                          tempData.lastRewardTs = Date.now();
+                          data.success = true;
+                          data.message = 'reward';
+                        } else {
+                          data.message = `in chunk '${ix}', reward key '${rewardKey}' was claimed before ${config.rewardCooldownMs} ms timeout.'`;
+                          logError = true;
+                        }
                       }
                       break;
                     case PENALTY_IXS[0]:

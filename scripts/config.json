@@ -55,8 +55,7 @@
       "type": "image/png"
     }
   ],
-  "chunks": [
-  ],
+  "chunks": [],
   "defaultDataPack": "basic",
   "dataPacks": [
     {
@@ -94,6 +93,7 @@
   "sessionStatusPollTimeMs": 30000,
   "sessionPayoutRatio": 0.02,
   "sessionPauseTimeMs": 10000,
+  "rewardCooldownMs": 100,
   "walletSeed": "",
   "walletSeedIx": 0,
   "walletRepresentative": "",
