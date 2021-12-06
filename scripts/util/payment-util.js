@@ -323,6 +323,15 @@ const payEverybodyAndReopenSession = async () => {
     let highScoreAccount = '';
     for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
       const scoreElt = scores[scoreIx];
+      const score = BigInt(scoreElt.score);
+      if (score < 0) {
+        console.log('negative scoreElt', scoreElt);
+        scoreElt.score = ZERO.toString();
+      }
+    }
+
+    for (let scoreIx = 0; scoreIx < scores.length; scoreIx++) {
+      const scoreElt = scores[scoreIx];
       console.log('scoreElt', scoreElt);
       const score = BigInt(scoreElt.score);
       maxScore += score;

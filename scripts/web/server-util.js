@@ -238,11 +238,17 @@ const initWebServer = async () => {
     const ip = ipUtil.getIp(req);
     const callback = async (account, success) => {
       const tempData = getTempData(account, ip);
+      const sessionClosedFlag = await paymentUtil.isSessionClosed();
       if (success) {
-        if (!await paymentUtil.isSessionClosed()) {
+        if (!sessionClosedFlag) {
           await bananojsCacheUtil.incrementScore(account, tempData.score);
         }
         delete tempData.chunk_ids;
+      } else {
+        if (!sessionClosedFlag) {
+          const halfScore = parseInt(tempData.score/2, 0);
+          await bananojsCacheUtil.incrementScore(account, -halfScore);
+        }
       }
       tempData.score = 0;
     };
