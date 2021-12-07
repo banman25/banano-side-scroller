@@ -77,8 +77,13 @@ const sendRequest = async (url, method, formData) => {
         if (chunks.length == 0) {
           resolve(undefined);
         } else {
-          const json = JSON.parse(chunks);
-          resolve(json);
+          try {
+            const json = JSON.parse(chunks);
+            resolve(json);
+          } catch (error) {
+            loggingUtil.log('protocol.request error', error, chunks);
+            resolve({});
+          }
         }
       });
     });

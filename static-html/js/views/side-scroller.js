@@ -285,13 +285,17 @@ const loadScore = async () => {
   const response = await fetch(url, {
     method: 'GET',
   });
-  const responseJson = await response.json();
-  if (responseJson.success) {
-    score = `${responseJson.tempScore} pending, ${responseJson.finalScore} cemented.`;
+  if (response.status === 200) {
+    const responseJson = await response.json();
+    if (responseJson.success) {
+      score = `${responseJson.tempScore} pending, ${responseJson.finalScore} cemented.`;
+    } else {
+      displayErrorMessage(responseJson.message);
+    }
+    await updateScore();
   } else {
-    displayErrorMessage(responseJson.message);
+    displayErrorMessage(response.statusText);
   }
-  await updateScore();
 };
 
 const loadChunkIds = async () => {

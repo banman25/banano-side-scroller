@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const awaitSemaphore = require('await-semaphore');
+const crypto = require('crypto');
 
 // modules
 const dateUtil = require('./date-util.js');
@@ -48,18 +49,27 @@ const deactivate = () => {
   /* eslint-enable no-unused-vars */
 };
 
-const getAccountFile = (account) => {
+const getAccountFile = (account, ip) => {
   if (account === undefined) {
     throw Error('account is required.');
   };
-  return path.join(config.bananojsCacheDataDir, account);
+  if (ip === undefined) {
+    throw Error('ip is required.');
+  };
+
+  const hash =
+    crypto.createHash('sha256')
+        .update(`${account}-${ip}`)
+        .digest('hex');
+
+  return path.join(config.bananojsCacheDataDir, hash);
 };
 
-const getScore = async (account) => {
+const getScore = async (account, ip) => {
   if (accountRegExp.test(account)) {
     const mutexRelease = await mutex.acquire();
     try {
-      const accountData = getAccountData(account);
+      const accountData = getAccountData(account, ip);
       return accountData.score;
     } finally {
       mutexRelease();
@@ -69,30 +79,31 @@ const getScore = async (account) => {
   }
 };
 
-const incrementScore = async (account, score) => {
+const incrementScore = async (account, ip, score) => {
   if (accountRegExp.test(account)) {
     const mutexRelease = await mutex.acquire();
     try {
-      const accountData = getAccountData(account);
+      const accountData = getAccountData(account, ip);
       accountData.score = (BigInt(accountData.score) + BigInt(score)).toString();
-      saveAccountData(account, accountData);
+      saveAccountData(account, ip, accountData);
     } finally {
       mutexRelease();
     }
   }
 };
 
-const saveAccountData = (account, data) => {
-  const accountFile = getAccountFile(account);
+const saveAccountData = (account, ip, data) => {
+  data.account = account;
+  const accountFile = getAccountFile(account, ip);
   const accountFilePtr = fs.openSync(accountFile, 'w');
   fs.writeSync(accountFilePtr, JSON.stringify(data));
   fs.closeSync(accountFilePtr);
 };
 
-const getAccountData = (account) => {
-  const accountFile = getAccountFile(account);
+const getAccountData = (account, ip) => {
+  const accountFile = getAccountFile(account, ip);
   if (!fs.existsSync(accountFile)) {
-    saveAccountData(account, {'score': '0'});
+    saveAccountData(account, ip, {'account': account, 'score': '0'});
   }
   const data = fs.readFileSync(accountFile, 'UTF-8');
   return JSON.parse(data);
@@ -128,11 +139,11 @@ const getActiveAccountCount = () => {
   return count;
 };
 
-const clearScore = async (account) => {
+const clearScore = async (account, ip) => {
   const allScores = [];
   const mutexRelease = await mutex.acquire();
   try {
-    const accountFile = path.join(config.bananojsCacheDataDir, account);
+    const accountFile = getAccountFile(account, ip);
     if (fs.existsSync(accountFile)) {
       fs.unlinkSync(accountFile);
     }
@@ -152,7 +163,7 @@ const getAndClearAllScores = async () => {
         const data = fs.readFileSync(accountFile, 'UTF-8');
         const json = JSON.parse(data);
         allScores.push({
-          account: file,
+          account: json.account,
           score: json.score,
         });
         fs.unlinkSync(accountFile);
@@ -172,9 +183,11 @@ const getAccountBalances = async () => {
       fs.readdirSync(config.bananojsCacheDataDir).forEach((file) => {
         const accountFile = path.join(config.bananojsCacheDataDir, file);
         const data = fs.readFileSync(accountFile, 'UTF-8');
-        const score = JSON.parse(data).score;
+        const json = JSON.parse(data);
+        const score = json.score;
+        const account = json.account;
         if (parseInt(score, 10) !== 0) {
-          accounts.push({account: file, score: score});
+          accounts.push({account: account, score: score});
         }
       });
     }

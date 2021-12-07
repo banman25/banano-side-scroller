@@ -241,13 +241,13 @@ const initWebServer = async () => {
       const sessionClosedFlag = await paymentUtil.isSessionClosed();
       if (success) {
         if (!sessionClosedFlag) {
-          await bananojsCacheUtil.incrementScore(account, tempData.score);
+          await bananojsCacheUtil.incrementScore(account, ip, tempData.score);
         }
         delete tempData.chunk_ids;
       } else {
         if (!sessionClosedFlag) {
           const halfScore = parseInt(tempData.score/2, 0);
-          await bananojsCacheUtil.incrementScore(account, -halfScore);
+          await bananojsCacheUtil.incrementScore(account, ip, -halfScore);
         }
       }
       tempData.score = 0;
@@ -518,7 +518,7 @@ const initWebServer = async () => {
       logError = true;
     } else {
       try {
-        const finalScore = await bananojsCacheUtil.getScore(account);
+        const finalScore = await bananojsCacheUtil.getScore(account, ip);
         data.success = true;
         data.message = 'score';
         const tempData = getTempData(account, ip);

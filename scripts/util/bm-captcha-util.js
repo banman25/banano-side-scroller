@@ -97,15 +97,16 @@ const captcha = async (req, res) => {
 };
 
 const updateAnswers = async () => {
+  const blackMonkeyDataUrl = config.blackMonkeyDataUrl;
   let requestedAlready = false;
   while (answers.length < MIN_ANSWERS) {
-    const answer = await httpsUtil.sendRequest(config.blackMonkeyDataUrl, 'GET');
+    const answer = await httpsUtil.sendRequest(blackMonkeyDataUrl, 'GET');
     answers.push(answer);
     requestedAlready = true;
   }
   if (!requestedAlready) {
     if (answers.length < MAX_ANSWERS) {
-      const answer = await httpsUtil.sendRequest(config.blackMonkeyDataUrl, 'GET');
+      const answer = await httpsUtil.sendRequest(blackMonkeyDataUrl, 'GET');
       answers.push(answer);
     }
   }

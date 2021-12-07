@@ -48,6 +48,16 @@ const init = async () => {
   webServerUtil.setCloseProgramFunction(closeProgram);
 
   process.on('SIGINT', closeProgram);
+  process.on('Uncaught Exception', (err) => {
+    console.trace(err);
+    console.log(`Uncaught Exception: ${err.message}`);
+    process.exitCode = 1;
+  });
+  process.on('Unhandled Rejection', (reason, promise) => {
+    console.trace(reason);
+    console.log('Unhandled Rejection at ', promise, `reason: ${reason.message}`);
+    process.exit(1);
+  });
 
   paymentFn();
 
