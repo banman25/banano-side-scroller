@@ -461,7 +461,7 @@ const initWebServer = async () => {
                           data.message = 'reward';
                         } else {
                           data.message = `in chunk '${ix}', reward key '${rewardKey}' was claimed before ${config.rewardCooldownMs} ms timeout.'`;
-                          logError = true;
+                          // logError = true;
                         }
                       }
                       break;

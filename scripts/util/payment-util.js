@@ -181,8 +181,16 @@ const receivePending = async (representative, seed, seedIx) => {
 };
 
 const receiveWalletPending = async () => {
-  await receivePending(config.walletRepresentative, config.walletSeed, config.walletSeedIx);
-  walletAccountBalanceDescription = await getAccountBalanceDescription(config.walletSeed, config.walletSeedIx);
+  try {
+    walletAccountBalanceDescription = 'checking pending...';
+    setSessionStatus('before receive pending.');
+    await receivePending(config.walletRepresentative, config.walletSeed, config.walletSeedIx);
+    setSessionStatus('after receive pending, before get account balance description.');
+    walletAccountBalanceDescription = await getAccountBalanceDescription(config.walletSeed, config.walletSeedIx);
+    setSessionStatus('after get account balance description.');
+  } catch (error) {
+    setSessionStatus(`error '${error.message}' at ${dateUtil.getDate()}`);
+  }
 };
 
 const getAccountBalanceDescription = async (seed, seedIx) => {

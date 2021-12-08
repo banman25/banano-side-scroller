@@ -73,7 +73,7 @@ let boardLoaded = false;
 let boardLoading = false;
 let sessionClosedCountdown = 0;
 let continueConfetti = false;
-let canJump = true;
+let remainingJumpCount = 2;
 
 const onLoad = async () => {
   document.addEventListener('keydown', keyDown, false);
@@ -386,7 +386,9 @@ const loadBoard = async (groupSvgElt) => {
 
 const moveUp = () => {
   // console.log('moveUp');
-  if (canJump) {
+  if (remainingJumpCount > 0) {
+    remainingJumpCount--;
+    synchJumpCount();
     moveForeground(0, -MOVE_Y);
   }
   return false;
@@ -517,21 +519,25 @@ const moveForegroundDown = async () => {
     let penaltyJump = false;
     let penlatyJumpElt = undefined;
     let moveDown = true;
-    canJump = false;
+    let updateJumpCount = false;
     obstacleElts.forEach((obstacleElt) => {
       if (intersect(obstacleElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, ASSET_SIZE)) {
         moveDown = false;
-        canJump = true;
+        updateJumpCount = true;
       }
     });
     for (let penaltyEltIx = 0; penaltyEltIx < penaltyElts.length; penaltyEltIx++) {
       const penaltyElt = penaltyElts[penaltyEltIx];
       if (intersect(penaltyElt, foregroundElt, ASSET_INTERSECT_HEIGHT, ASSET_INTERSECT_HEIGHT, PENALTY_SIZE)) {
         moveDown = false;
-        canJump = true;
+        updateJumpCount = true;
         penaltyJump = true;
         penlatyJumpElt = penaltyElt;
       }
+    }
+    if (updateJumpCount) {
+      remainingJumpCount = 2;
+      synchJumpCount();
     }
 
     if (y < FOREGROUND_MAX_Y) {
@@ -730,6 +736,11 @@ const winConfetti = () => {
     });
   }
   continueConfetti = false;
+};
+
+const synchJumpCount = () => {
+  const jumpCountElt = document.querySelector('#jumpCount');
+  jumpCountElt.innerText = remainingJumpCount;
 };
 
 
