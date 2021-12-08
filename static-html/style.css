@@ -3,6 +3,7 @@ html {
   font-size: 24px;
   overflow-y: scroll;
   text-align: center;
+  touch-action: manipulation;
 }
 
 body {}
