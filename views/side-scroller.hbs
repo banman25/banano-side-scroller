@@ -1,13 +1,13 @@
-<table class="t_center align_top display_inline_block">
+<table class="t_center align_top display_inline_block not_selectable">
   <tr>
     <td colspan="3" class="align_top">
+      <a href="/scoreboard" class="small">Scoreboard</a>
       <select id="data_packs">
         {{#each data_packs}}
           <option value='{{name}}' {{selected}}>{{name}}</option>
         {{/each}}
       </select>
     </td>
-    <a href="/scoreboard" class="small">Scoreboard</a>
   </tr>
   <tr>
     <td colspan="3" id="side_scroller" class="align_top">
@@ -19,7 +19,7 @@
         <img src="feathericons/arrow-left.svg" /><br>(Left Arrow)
       </button>
       <button id="thumbs-up" class="arrow_button" onclick="return moveUp()">
-        <img src="feathericons/arrow-up.svg" /><br>(Up Arrow, Space) <span id="jumpCount"/>
+        <img src="feathericons/arrow-up.svg" /><br>(Up Arrow, Space) <span id="jumpCount" />
       </button>
       <button id="thumbs-down" class="arrow_button" onclick="return moveRight()">
         <img src="feathericons/arrow-right.svg" /><br>(Right Arrow)
