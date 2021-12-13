@@ -713,6 +713,7 @@ const captchaClicked = (response) => {
     }, 5000);
   } else {
     captchaStatus = CAPTCHA_HIDDEN;
+    hideCaptcha();
     displayErrorMessage('captcha success. ' + response.message);
   }
   boardLoaded = false;
