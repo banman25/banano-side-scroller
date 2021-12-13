@@ -23,3 +23,7 @@
     npm run screenrestart;
 
 ### todo
+
+1. add captcha timer, in case bots are just doing the captcha over and over.
+
+2. add payout cap, so if the payout is above the cap, it will just be at the cap. (to make refilling not mess with the cap as much)

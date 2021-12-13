@@ -9,6 +9,7 @@ const httpsUtil = require('./https-util.js');
 // constants
 const MIN_ANSWERS = 1;
 const MAX_ANSWERS = 100;
+const VALID_ANSWERS = [1, 2, 3, 4, 5, 6];
 const answers = [];
 const registeredSites = new Map();
 
@@ -52,18 +53,22 @@ const register = async (req, res) => {
 
 const verify = async (req, res, callback) => {
   const secretKey = req.body.secretKey;
-  const actualAnswer = req.body.answer;
+  const actualAnswer = parseInt(req.body.answer, 10);
   const response = {};
   response.success = false;
   response.challenge_ts = dateUtil.getDate();
   if (registeredSites.has(secretKey)) {
     const site = registeredSites.get(secretKey);
     if (site.answer) {
-      const expectedAnswer = site.answer.answer;
-      response.actual = actualAnswer;
-      response.expected = expectedAnswer;
-      response.success = expectedAnswer == actualAnswer;
-      response.message = 'you answered ' + actualAnswer + ' and the correct one was ' + expectedAnswer;
+      const expectedAnswer = parseInt(site.answer.answer, 10);
+      if (VALID_ANSWERS.includes(expectedAnswer) && VALID_ANSWERS.includes(actualAnswer)) {
+        response.actual = actualAnswer;
+        response.expected = expectedAnswer;
+        response.success = expectedAnswer == actualAnswer;
+        response.message = site.answer.answerDetail;
+      } else {
+        loggingUtil.log('bmcaptcha', 'verify', 'expectedAnswer', expectedAnswer, 'actualAnswer', actualAnswer, VALID_ANSWERS, VALID_ANSWERS);
+      }
     }
     delete site.answer;
   }
@@ -89,7 +94,9 @@ const captcha = async (req, res) => {
 
     if (site.answer) {
       response.success = true;
-      response.images = site.answer;
+      response.images = {};
+      response.images.monkeys = site.answer.monkeys;
+      // response.images = site.answer;
     } else {
       response.success = false;
     }

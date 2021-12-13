@@ -698,12 +698,16 @@ const captchaClicked = (response) => {
     const actualSelector = '#bm_captcha_image_' + response.actual;
     console.log('showCaptcha', 'actual selector', actualSelector);
     const actualImageElt = document.querySelector(actualSelector);
-    actualImageElt.setAttribute('class', 'red_striped_background');
+    if (actualImageElt != null) {
+      actualImageElt.setAttribute('class', 'red_striped_background');
+    }
 
     const expectedSelector = '#bm_captcha_image_' + response.expected;
     console.log('showCaptcha', 'expected selector', expectedSelector);
     const expectedImageElt = document.querySelector(expectedSelector);
-    expectedImageElt.setAttribute('class', 'green_background');
+    if (expectedImageElt != null) {
+      expectedImageElt.setAttribute('class', 'green_background');
+    }
 
     captchaStatus = CAPTCHA_RESPONSE;
     displayErrorMessage('captcha failed. (continuing in 5s) ' + response.message);

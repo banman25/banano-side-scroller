@@ -107,7 +107,7 @@ bmcaptcha.showCaptcha = (callback) => {
       const data = json.images.monkeys[imageIx];
       // console.log('showCaptcha', 'data', data);
       captchaImageElt.setAttribute('src', data);
-      captchaImageElt.setAttribute('className', '');
+      captchaImageElt.setAttribute('class', 'white_background');
     });
     callback(json);
   };

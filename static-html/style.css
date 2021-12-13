@@ -127,6 +127,10 @@ hr {}
   background-color: green;
 }
 
+.white_background {
+  background-color: white;
+}
+
 .unselected_player {
   stroke: #000;
 }
