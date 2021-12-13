@@ -366,6 +366,9 @@ const loadBoard = async (groupSvgElt) => {
               case OBSTACLE_HREF:
                 classNm = 'penalty';
                 break;
+              case FLAVOR_HREF:
+                classNm = 'flavor';
+                break;
             }
             addChildSvgElement(groupSvgElt, 'image', {
               'y': y,

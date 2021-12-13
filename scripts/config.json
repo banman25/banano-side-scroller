@@ -53,6 +53,12 @@
       "img": "obstacle",
       "file": "obstacle.png",
       "type": "image/png"
+    },
+    {
+      "dir": "ground",
+      "img": "flavor",
+      "file": "flavor.png",
+      "type": "image/png"
     }
   ],
   "chunks": [],
