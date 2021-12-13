@@ -119,6 +119,14 @@ hr {}
   border-width: 1px;
 }
 
+.red_striped_background {
+  background: repeating-linear-gradient(45deg, red, pink 50%);
+}
+
+.green_background {
+  background-color: green;
+}
+
 .unselected_player {
   stroke: #000;
 }

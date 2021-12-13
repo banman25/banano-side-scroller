@@ -30,6 +30,8 @@ const GROUND_HREF = 'ground/ground';
 
 const OBSTACLE_HREF = 'ground/obstacle';
 
+const FLAVOR_HREF = 'ground/flavor';
+
 const STATIC_BACKGROUND_HREF = 'background/static-background';
 
 const MOVING_BACKGROUND_HREF = 'background/moving-background';
@@ -44,6 +46,7 @@ const assetsHrefs = [
   WATER_HREF,
   REWARD_HREF,
   OBSTACLE_HREF,
+  FLAVOR_HREF,
 ];
 
 const allHrefs = [
@@ -55,6 +58,7 @@ const allHrefs = [
   'background/tipbot',
   'background/donations',
   GROUND_HREF,
+  FLAVOR_HREF,
 ];
 
 if (LOG_ALL_HREFS) {
@@ -65,9 +69,15 @@ if (LOG_ALL_HREFS) {
 
 const LOADING = 'loading...';
 
+const CAPTCHA_HIDDEN = 'hidden';
+
+const CAPTCHA_VISIBLE = 'visible';
+
+const CAPTCHA_RESPONSE = 'response';
+
 let score = LOADING;
 let remaining = 0;
-let captchaDisplayed = false;
+let captchaStatus = CAPTCHA_HIDDEN;
 let sessionClosed = false;
 let boardLoaded = false;
 let boardLoading = false;
@@ -185,7 +195,7 @@ const onLoad = async () => {
   await sessionPauseTimeCallback();
 
   setInterval(() => {
-    if (!captchaDisplayed) {
+    if (captchaStatus == CAPTCHA_HIDDEN) {
       if (boardLoaded) {
         if (sessionClosed) {
           if (sessionClosedCountdown > 0) {
@@ -201,6 +211,7 @@ const onLoad = async () => {
             showCaptcha();
           } else {
             moveBackground();
+            moveFlavor();
             moveObstacle();
             moveReward();
             movePenalty();
@@ -407,8 +418,12 @@ const moveRight = () => {
 };
 
 const moveForeground = (x, y) => {
-  if (captchaDisplayed || sessionClosed) {
-    displayErrorMessage('cannot move when captcha is displayed');
+  if (sessionClosed) {
+    displayErrorMessage('cannot move when session is closed.');
+    return;
+  }
+  if (captchaStatus != CAPTCHA_HIDDEN) {
+    displayErrorMessage('cannot move when captcha is displayed.');
     return;
   }
   const foregroundElts = [...document.getElementsByClassName('foreground')];
@@ -434,7 +449,10 @@ const moveForeground = (x, y) => {
 };
 
 const moveBackground = () => {
-  if (captchaDisplayed || sessionClosed) {
+  if (sessionClosed) {
+    return;
+  }
+  if (captchaStatus != CAPTCHA_HIDDEN) {
     return;
   }
   const backgroundElts = [...document.getElementsByClassName('background')];
@@ -451,7 +469,10 @@ const moveBackground = () => {
 };
 
 const movePenalty = () => {
-  if (captchaDisplayed || sessionClosed) {
+  if (sessionClosed) {
+    return;
+  }
+  if (captchaStatus != CAPTCHA_HIDDEN) {
     return;
   }
   const obstacleElts = [...document.getElementsByClassName('penalty')];
@@ -469,7 +490,10 @@ const movePenalty = () => {
 };
 
 const moveObstacle = () => {
-  if (captchaDisplayed || sessionClosed) {
+  if (sessionClosed) {
+    return;
+  }
+  if (captchaStatus != CAPTCHA_HIDDEN) {
     return;
   }
   const obstacleElts = [...document.getElementsByClassName('obstacle')];
@@ -487,7 +511,10 @@ const moveObstacle = () => {
 };
 
 const moveReward = () => {
-  if (captchaDisplayed || sessionClosed) {
+  if (sessionClosed) {
+    return;
+  }
+  if (captchaStatus != CAPTCHA_HIDDEN) {
     return;
   }
   const elts = [...document.getElementsByClassName('reward')];
@@ -504,8 +531,32 @@ const moveReward = () => {
   });
 };
 
+const moveFlavor = () => {
+  if (sessionClosed) {
+    return;
+  }
+  if (captchaStatus != CAPTCHA_HIDDEN) {
+    return;
+  }
+  const elts = [...document.getElementsByClassName('flavor')];
+  elts.forEach((elt) => {
+    const x = parseFloat(get(elt, 'x'));
+    const eltWidth = parseFloat(get(elt, 'width'));
+    if (x >= -eltWidth) {
+      // if elt is not offscreen, move it left.
+      set(elt, 'x', x - MOVE_DX);
+    } else {
+      const parentElement = elt.parentElement;
+      parentElement.removeChild(elt);
+    }
+  });
+};
+
 const moveForegroundDown = async () => {
-  if (captchaDisplayed || sessionClosed) {
+  if (sessionClosed) {
+    return;
+  }
+  if (captchaStatus != CAPTCHA_HIDDEN) {
     return;
   }
 
@@ -592,7 +643,10 @@ const intersect = (obstacleElt, foregroundElt, oH, fH, yOffset) => {
 };
 
 const updateScore = async () => {
-  if (captchaDisplayed || sessionClosed) {
+  if (sessionClosed) {
+    return;
+  }
+  if (captchaStatus != CAPTCHA_HIDDEN) {
     return;
   }
   const scoreElt = document.querySelector('#score');
@@ -636,27 +690,43 @@ const updateScore = async () => {
 };
 
 const captchaClicked = (response) => {
-  captchaDisplayed = false;
   // console.log('captchaClicked', response);
   if (!response.success) {
-    displayErrorMessage('captcha failed. ' + response.message);
+    const actualSelector = '#bm_captcha_image_' + response.actual;
+    console.log('showCaptcha', 'actual selector', actualSelector);
+    const actualImageElt = document.querySelector(actualSelector);
+    actualImageElt.setAttribute('class', 'red_striped_background');
+
+    const expectedSelector = '#bm_captcha_image_' + response.expected;
+    console.log('showCaptcha', 'expected selector', expectedSelector);
+    const expectedImageElt = document.querySelector(expectedSelector);
+    expectedImageElt.setAttribute('class', 'green_background');
+
+    captchaStatus = CAPTCHA_RESPONSE;
+    displayErrorMessage('captcha failed. (continuing in 5s) ' + response.message);
+    setTimeout(() => {
+      captchaStatus = CAPTCHA_HIDDEN;
+      hideCaptcha();
+    }, 5000);
   } else {
+    captchaStatus = CAPTCHA_HIDDEN;
     displayErrorMessage('captcha success. ' + response.message);
   }
   boardLoaded = false;
-  hideCaptcha();
 };
 
 const hideCaptcha = () => {
+  bmcaptcha.hideCaptcha();
   const gameElt = document.querySelector('#game');
   set(gameElt, 'style', 'display:block');
 };
 
 const showCaptcha = () => {
-  captchaDisplayed = true;
+  captchaStatus = CAPTCHA_VISIBLE;
   const callback = (json) => {
     // const gameElt = document.querySelector('#game');
     // set(gameElt, 'style', 'display:none');
+    // bmcaptcha.hideCaptcha();
   };
   bmcaptcha.showCaptcha(callback);
 };

@@ -60,6 +60,8 @@ const verify = async (req, res, callback) => {
     const site = registeredSites.get(secretKey);
     if (site.answer) {
       const expectedAnswer = site.answer.answer;
+      response.actual = actualAnswer;
+      response.expected = expectedAnswer;
       response.success = expectedAnswer == actualAnswer;
       response.message = 'you answered ' + actualAnswer + ' and the correct one was ' + expectedAnswer;
     }

@@ -80,7 +80,7 @@ bmcaptcha.captchaClicked = (event) => {
   request.answer = event.target.getAttribute('data_answer');
 
   const callbackWrapper = (response) => {
-    bmcaptcha.hideCaptcha();
+    console.log('captchaClicked', 'response', response);
     bmcaptcha.captchaClickedCallback(response);
   };
 
@@ -105,8 +105,9 @@ bmcaptcha.showCaptcha = (callback) => {
       const captchaImageElt = document.querySelector(selector);
       console.log('showCaptcha', 'captchaImageElt', captchaImageElt);
       const data = json.images.monkeys[imageIx];
-      console.log('showCaptcha', 'data', data);
+      // console.log('showCaptcha', 'data', data);
       captchaImageElt.setAttribute('src', data);
+      captchaImageElt.setAttribute('className', '');
     });
     callback(json);
   };

@@ -23,5 +23,3 @@
     npm run screenrestart;
 
 ### todo
-
-  update cemented count to be per-ip, per-account rather than just per-account.
