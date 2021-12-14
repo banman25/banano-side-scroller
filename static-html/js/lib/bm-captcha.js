@@ -73,7 +73,10 @@ bmcaptcha.init = (id, captchaClickedCallback) => {
 };
 
 bmcaptcha.captchaClicked = (event) => {
-  // console.log('captchaClicked', event.target);
+  // console.log('captchaClicked', event);
+  if (!event.isTrusted) {
+    return;
+  }
   const request = {};
   request.account = window.localStorage.account;
   request.secretKey = bmcaptcha.secretKey;
@@ -94,16 +97,16 @@ bmcaptcha.hideCaptcha = () => {
 
 bmcaptcha.showCaptcha = (callback) => {
   const callbackWrapper = (json) => {
-    console.log('showCaptcha', json);
+    // console.log('showCaptcha', json);
     const captchaElt = document.querySelector('#bm_captcha');
     captchaElt.setAttribute('style', 'display:block');
     const keys = [...Object.keys(json.images.monkeys)];
-    console.log('showCaptcha', 'keys', keys);
+    // console.log('showCaptcha', 'keys', keys);
     keys.forEach((imageIx) => {
       const selector = '#bm_captcha_image_' + imageIx;
-      console.log('showCaptcha', 'selector', selector);
+      // console.log('showCaptcha', 'selector', selector);
       const captchaImageElt = document.querySelector(selector);
-      console.log('showCaptcha', 'captchaImageElt', captchaImageElt);
+      // console.log('showCaptcha', 'captchaImageElt', captchaImageElt);
       const data = json.images.monkeys[imageIx];
       // console.log('showCaptcha', 'data', data);
       captchaImageElt.setAttribute('src', data);

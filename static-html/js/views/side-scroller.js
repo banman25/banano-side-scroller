@@ -398,7 +398,11 @@ const loadBoard = async (groupSvgElt) => {
   await loadScore();
 };
 
-const moveUp = () => {
+const moveUp = (event) => {
+  // console.log('moveUp', event);
+  if (!event.isTrusted) {
+    return;
+  }
   // console.log('moveUp');
   if (remainingJumpCount > 0) {
     remainingJumpCount--;
@@ -408,13 +412,21 @@ const moveUp = () => {
   return false;
 };
 
-const moveLeft = () => {
+const moveLeft = (event) => {
+  // console.log('moveLeft', event);
+  if (!event.isTrusted) {
+    return;
+  }
   // console.log('moveLeft');
   moveForeground(-MOVE_X, 0);
   return false;
 };
 
-const moveRight = () => {
+const moveRight = (event) => {
+  // console.log('moveRight', event);
+  if (!event.isTrusted) {
+    return;
+  }
   // console.log('moveRight');
   moveForeground(MOVE_X, 0);
   return false;
@@ -743,14 +755,14 @@ const showCaptcha = () => {
 const keyDown = (e) => {
   switch (e.keyCode) {
     case 37:
-      moveLeft();
+      moveLeft(e);
       break;
     case 32:
     case 38:
-      moveUp();
+      moveUp(e);
       break;
     case 39:
-      moveRight();
+      moveRight(e);
       break;
     default:
       console.log('keyDown', e.keyCode);
