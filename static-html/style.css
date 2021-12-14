@@ -109,6 +109,10 @@ hr {}
   word-wrap: break-word;
 }
 
+.whitespace_no_wrap {
+  white-space: nowrap;
+}
+
 .small {
   font-size: 12px;
 }
@@ -129,6 +133,14 @@ hr {}
 
 .white_background {
   background-color: white;
+}
+
+.black_background {
+  background-color: black;
+}
+
+.white_foreground {
+  color: white;
 }
 
 .unselected_player {
