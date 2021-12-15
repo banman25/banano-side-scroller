@@ -154,7 +154,7 @@ const clearScore = async (account, ip) => {
 };
 
 const getAndClearAllScores = async () => {
-  const allScores = [];
+  const maxScoreByAccount = {};
   const mutexRelease = await mutex.acquire();
   try {
     if (fs.existsSync(config.bananojsCacheDataDir)) {
@@ -162,16 +162,28 @@ const getAndClearAllScores = async () => {
         const accountFile = path.join(config.bananojsCacheDataDir, file);
         const data = fs.readFileSync(accountFile, 'UTF-8');
         const json = JSON.parse(data);
-        allScores.push({
-          account: json.account,
-          score: json.score,
-        });
+        const score = parseInt(json.score, 10);
+        if (maxScoreByAccount[json.account] === undefined) {
+          maxScoreByAccount[json.account] = score;
+        } else {
+          const oldScore = maxScoreByAccount[json.account];
+          maxScoreByAccount[json.account] = Math.min(score, oldScore);
+        }
         fs.unlinkSync(accountFile);
       });
     }
   } finally {
     mutexRelease();
   }
+  const allScores = [];
+  const accounts = [...Object.keys(maxScoreByAccount)];
+  accounts.forEach((account) => {
+    const score = maxScoreByAccount[account];
+    allScores.push({
+      account: account,
+      score: score,
+    });
+  });
   return allScores;
 };
 

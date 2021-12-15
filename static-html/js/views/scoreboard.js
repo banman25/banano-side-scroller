@@ -75,7 +75,7 @@ const loadPayouts = async () => {
     headers: {
       'content-type': 'application/json',
     },
-    body: `{"action": "account_history", "account":"${walletAccount}", "count":-1, "reverse":true}`,
+    body: `{"action": "account_history", "account":"${walletAccount}", "count":-1, "reverse":false}`,
   });
   const history = await response.json();
   // console.log('loadPayouts', history);
