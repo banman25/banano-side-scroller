@@ -620,7 +620,7 @@ const moveForegroundDown = async () => {
     }
     if (penaltyJump) {
       winConfetti();
-      moveUp();
+      moveUp({isTrusted: true});
       if ((!score.startsWith('0')) && (score != LOADING)) {
         score == LOADING;
         await incrementScore(penlatyJumpElt);
@@ -671,7 +671,6 @@ const updateScore = async () => {
   }
   const scoreElt = document.querySelector('#score');
   const foregroundElts = [...document.getElementsByClassName('foreground')];
-  const obstacleElts = [...document.getElementsByClassName('obstacle')];
   const rewardElts = [...document.getElementsByClassName('reward')];
   const penaltyElts = [...document.getElementsByClassName('penalty')];
   for (let foregroundEltIx = 0; foregroundEltIx < foregroundElts.length; foregroundEltIx++) {
@@ -691,13 +690,6 @@ const updateScore = async () => {
       const penaltyElt = penaltyElts[penaltyEltIx];
       if (intersect(penaltyElt, foregroundElt)) {
         await incrementScore(penaltyElt);
-      }
-    }
-
-    for (let obstacleEltIx = 0; obstacleEltIx < obstacleElts.length; obstacleEltIx++) {
-      const obstacleElt = obstacleElts[obstacleEltIx];
-      if (intersect(obstacleElt, foregroundElt)) {
-        await incrementScore(obstacleElt);
       }
     }
   }

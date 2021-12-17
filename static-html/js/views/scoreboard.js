@@ -2,6 +2,8 @@ import {clear, addText, addChildElement, displayErrorMessage} from '../lib/util.
 
 const ZERO = BigInt(0);
 
+const ONE = BigInt(1);
+
 const onLoad = async () => {
   loadAdminKey();
   loadPayouts();
@@ -82,7 +84,10 @@ const loadPayouts = async () => {
   if (history.history !== undefined) {
     const bananojs = window.bananocoinBananojs;
 
+    const totalSendAmount = {};
+    const totalSendCount = {};
     const sendByDateAndAmount = {};
+    const sendByDateAndCount = {};
     const allAccountsSet = new Set();
     const accountMinDate = {};
 
@@ -95,36 +100,134 @@ const loadPayouts = async () => {
           sendByDateAndAmount[date] = {};
         }
 
+        if (sendByDateAndCount[date] === undefined) {
+          sendByDateAndCount[date] = {};
+        }
+
         accountMinDate[historyElt.account] = date;
 
         allAccountsSet.add(historyElt.account);
 
         const sendByAmount = sendByDateAndAmount[date];
 
+        const sendByCount = sendByDateAndCount[date];
+
+        if (sendByCount[historyElt.account] === undefined) {
+          sendByCount[historyElt.account] = ZERO;
+        }
+
         if (sendByAmount[historyElt.account] === undefined) {
-          sendByAmount[historyElt.account] = BigInt(0);
+          sendByAmount[historyElt.account] = ZERO;
+        }
+        if (totalSendAmount[historyElt.account] === undefined) {
+          totalSendAmount[historyElt.account] = ZERO;
+        }
+
+        if (totalSendCount[historyElt.account] === undefined) {
+          totalSendCount[historyElt.account] = ZERO;
         }
 
         sendByAmount[historyElt.account] += BigInt(historyElt.amount);
+
+        sendByCount[historyElt.account] += BigInt(ONE);
+
+        totalSendAmount[historyElt.account] += BigInt(historyElt.amount);
+
+        totalSendCount[historyElt.account] += BigInt(ONE);
       }
     });
 
     const payoutsElt = document.querySelector('#payouts');
     clear(payoutsElt);
 
+    const payoutAccountsElt = document.querySelector('#payoutAccounts');
+    clear(payoutAccountsElt);
+
     const allAccounts = [...allAccountsSet];
 
+    const dates = [...Object.keys(sendByDateAndAmount)];
+    // console.log('loadPayouts', dates);
+    dates.sort((a, b) => {
+      return b.localeCompare(a);
+    });
+
+    // account list
+    allAccounts.sort((a, b) => {
+      const aTotalSend = totalSendAmount[a];
+      const bTotalSend = totalSendAmount[b];
+      const cTotalSend = bTotalSend - aTotalSend;
+      if (cTotalSend > ZERO) {
+        return 1;
+      } else if (cTotalSend < ZERO) {
+        return -1;
+      }
+
+      // account name
+      const cab = a.localeCompare(b);
+      if (cab != 0) {
+        return cab;
+      }
+      return 0;
+    });
+
+    const addPaymentAccountHeader = () => {
+      const trElt = addChildElement(payoutAccountsElt, 'tr');
+      const accountElt = addChildElement(trElt, 'td', {
+        class: 'align_top whitespace_no_wrap',
+      });
+      addText(accountElt, 'Account');
+      const amountElt = addChildElement(trElt, 'td');
+      addText(amountElt, 'Amount');
+      const countElt = addChildElement(trElt, 'td');
+      addText(countElt, 'Count');
+    };
+
+    addPaymentAccountHeader();
+
+    allAccounts.forEach((account) => {
+      const trElt = addChildElement(payoutAccountsElt, 'tr', {
+        id: 'payout-' + account,
+      });
+      const raw = totalSendAmount[account];
+      const balanceParts = bananojs.getBananoPartsFromRaw(raw);
+      const banano = balanceParts.banano;
+
+      const count = totalSendCount[account];
+      const accountElt = addChildElement(trElt, 'td' );
+      addText(accountElt, account);
+      const amountElt = addChildElement(trElt, 'td');
+      addText(amountElt, banano);
+      const countElt = addChildElement(trElt, 'td');
+      addText(countElt, count);
+    });
+
+    // histogram
     allAccounts.sort((a, b) => {
       const aMinDate = accountMinDate[a];
       const bMinDate = accountMinDate[b];
-      return bMinDate.localeCompare(aMinDate);
+      const cMinDate = bMinDate.localeCompare(aMinDate);
+      if (cMinDate != 0) {
+        return cMinDate;
+      }
+
+      const aTotalSend = totalSendAmount[a];
+      const bTotalSend = totalSendAmount[b];
+      const cTotalSend = bTotalSend - aTotalSend;
+      if (cTotalSend > ZERO) {
+        return 1;
+      } else if (cTotalSend < ZERO) {
+        return -1;
+      }
+
+      // account name
+      const cab = a.localeCompare(b);
+      if (cab != 0) {
+        return cab;
+      }
+      return 0;
     });
 
-    if (allAccounts.length > 50) {
-      allAccounts.length = 50;
-    }
-
-    const addHeader = () => {
+    const addHistogamHeader = () => {
       const trElt = addChildElement(payoutsElt, 'tr');
       const dateElt = addChildElement(trElt, 'td', {
         class: 'align_top whitespace_no_wrap',
@@ -140,20 +243,19 @@ const loadPayouts = async () => {
         });
       });
     };
-    addHeader();
-
-    const dates = [...Object.keys(sendByDateAndAmount)];
-    // console.log('loadPayouts', dates);
-    dates.sort((a, b) => {
-      return b.localeCompare(a);
-    });
+    addHistogamHeader();
 
     dates.forEach((date) => {
       const sendByAmount = sendByDateAndAmount[date];
 
+      const sendByCount = sendByDateAndCount[date];
+
       allAccounts.forEach((account) => {
         if (sendByAmount[account] === undefined) {
           sendByAmount[account] = 0;
+        }
+        if (sendByCount[account] === undefined) {
+          sendByCount[account] = 0;
         }
       });
 
@@ -164,6 +266,7 @@ const loadPayouts = async () => {
       addText(dateElt, date);
 
       allAccounts.forEach((account) => {
+        const count = sendByCount[account];
         const raw = sendByAmount[account];
         const accountElt = addChildElement(trElt, 'td', {
           class: 'align_top small',
@@ -178,9 +281,16 @@ const loadPayouts = async () => {
             class: 'black_background white_foreground',
             title: account,
           });
-          addText(squareElt, banano, {
-            title: account,
+          const anchorElt = addChildElement(squareElt, 'a', {
+            href: '#payout-' + account,
           });
+          addText(anchorElt, 'ban');
+          addChildElement(anchorElt, 'br');
+          addText(anchorElt, banano);
+          addChildElement(anchorElt, 'br');
+          addText(anchorElt, 'nbr');
+          addChildElement(anchorElt, 'br');
+          addText(anchorElt, count);
         }
       });
     });

@@ -22,6 +22,27 @@ ol {}
 
 hr {}
 
+a {
+  text-decoration: none;
+  background-color: black;
+}
+
+tr:target {
+  background-color: #ffa;
+}
+
+a:link, a:visited {
+  color: white;
+}
+
+a:hover {
+  color: gray;
+}
+
+.scroll_x {
+  overflow-x: scroll;
+}
+
 .arrow_button {
   width: 180px;
   height: 60px;

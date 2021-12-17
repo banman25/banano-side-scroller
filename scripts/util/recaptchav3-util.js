@@ -2,7 +2,7 @@
 // libraries
 
 // modules
-const dateUtil = require('./date-util.js');
+// const dateUtil = require('./date-util.js');
 const httpsUtil = require('./https-util.js');
 
 // constants
@@ -40,7 +40,7 @@ const verify = async (token, ip) => {
   const response = await httpsUtil.sendRequest(recaptchav3Url, 'POST', formData, 'form');
   const tokenValidationInfo = {};
   // if (!response.success) {
-    // loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'response', response);
+  // loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'response', response);
   // }
   tokenValidationInfo.valid = response.success;
   tokenValidationInfo.message = `score ${response.score}`;
