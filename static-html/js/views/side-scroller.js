@@ -623,7 +623,7 @@ const moveForegroundDown = async () => {
       moveUp();
       if ((!score.startsWith('0')) && (score != LOADING)) {
         score == LOADING;
-        incrementScore(penlatyJumpElt);
+        await incrementScore(penlatyJumpElt);
       }
     }
   }
