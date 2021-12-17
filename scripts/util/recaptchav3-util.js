@@ -39,9 +39,9 @@ const verify = async (token, ip) => {
   // loggingUtil.log('recaptchav3', 'verify', 'formData', formData);
   const response = await httpsUtil.sendRequest(recaptchav3Url, 'POST', formData, 'form');
   const tokenValidationInfo = {};
-  if (!response.success) {
-    loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'response', response);
-  }
+  // if (!response.success) {
+    // loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'response', response);
+  // }
   tokenValidationInfo.valid = response.success;
   tokenValidationInfo.message = `score ${response.score}`;
   return tokenValidationInfo;
