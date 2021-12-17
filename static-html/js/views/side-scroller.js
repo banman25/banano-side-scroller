@@ -270,24 +270,29 @@ const incrementScore = async (rewardElt) => {
   const colIx = rewardElt.dataset.chunkColIx;
   const rowIx = rewardElt.dataset.chunkRowIx;
   const account = window.localStorage.account;
-  const url = '/increment_score?' +
-   `account=${account}&id=${id}&ix=${ix}&col_ix=${colIx}&row_ix=${rowIx}`;
-  const response = await fetch(url, {
-    method: 'GET',
+  const siteKey = document.getElementById('siteKey').innerText;
+  grecaptcha.ready(function() {
+    grecaptcha.execute(siteKey, {action: 'incrementScore'}).then(async (token) => {
+      const url = '/increment_score?' +
+       `account=${account}&id=${id}&ix=${ix}&col_ix=${colIx}&row_ix=${rowIx}&token=${token}`;
+      const response = await fetch(url, {
+        method: 'GET',
+      });
+      const responseJson = await response.json();
+      // console.log('incrementScore', responseJson);
+      if (!responseJson.success) {
+        displayErrorMessage(responseJson.message);
+      // } else {
+        // displayErrorMessage();
+      }
+      sessionClosed = !responseJson.session_open;
+
+      const sessionElt = document.querySelector('#session');
+      sessionElt.innerText = responseJson.session_description;
+
+      await loadScore();
+    });
   });
-  const responseJson = await response.json();
-  // console.log('incrementScore', responseJson);
-  if (!responseJson.success) {
-    displayErrorMessage(responseJson.message);
-  // } else {
-    // displayErrorMessage();
-  }
-  sessionClosed = !responseJson.session_open;
-
-  const sessionElt = document.querySelector('#session');
-  sessionElt.innerText = responseJson.session_description;
-
-  await loadScore();
 };
 
 const loadScore = async () => {

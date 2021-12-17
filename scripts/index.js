@@ -6,6 +6,7 @@ const bananojsCacheUtil = require('./util/bananojs-cache-util.js');
 const ipUtil = require('./util/ip-util.js');
 const dateUtil = require('./util/date-util.js');
 const bmCaptchaUtil = require('./util/bm-captcha-util.js');
+const recaptchav3Util = require('./util/recaptchav3-util.js');
 const httpsUtil = require('./util/https-util.js');
 const webServerUtil = require('./web/server-util.js');
 const paymentUtil = require('./util/payment-util.js');
@@ -36,6 +37,7 @@ const init = async () => {
   modules.push(chunkUtil);
   modules.push(bananojsCacheUtil);
   modules.push(bmCaptchaUtil);
+  modules.push(recaptchav3Util);
   modules.push(httpsUtil);
   modules.push(webServerUtil);
   modules.push(paymentUtil);

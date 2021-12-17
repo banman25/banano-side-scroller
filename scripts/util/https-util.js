@@ -30,7 +30,7 @@ const deactivate = () => {
   loggingUtil = undefined;
 };
 
-const sendRequest = async (url, method, formData) => {
+const sendRequest = async (url, method, formData, formDataType) => {
   if (url == undefined) {
     throw Error(`'url' is a required parameter.`);
   }
@@ -39,7 +39,27 @@ const sendRequest = async (url, method, formData) => {
   }
   return new Promise((resolve) => {
     const apiUrl = new URL(url);
-    const body = JSON.stringify(formData);
+
+    let body = '';
+    let contentType = '';
+    switch (formDataType) {
+      case undefined:
+      case 'json':
+        body = JSON.stringify(formData);
+        contentType = 'application/json';
+        break;
+      case 'form':
+        Object.keys(formData).forEach((key) => {
+          const value = formData[key];
+          if (body.length > 0) {
+            body += '&';
+          }
+          body += `${key}=${value}`;
+        });
+        contentType = 'application/x-www-form-urlencoded';
+        break;
+      default:
+    }
     // loggingUtil.log('sendRequest url', url);
 
     let protocol;
@@ -61,8 +81,8 @@ const sendRequest = async (url, method, formData) => {
 
     if (formData !== undefined) {
       options.headers = {
-        'Content-Type': 'application/json',
         'Content-Length': body.length,
+        'Content-Type': contentType,
       };
     }
 

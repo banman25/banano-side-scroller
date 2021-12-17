@@ -16,6 +16,7 @@ const randomUtil = require('../util/random-util.js');
 const dateUtil = require('../util/date-util.js');
 const ipUtil = require('../util/ip-util.js');
 const bmCaptchaUtil = require('../util/bm-captcha-util.js');
+const recaptchav3Util = require('../util/recaptchav3-util.js');
 const bananojsCacheUtil = require('../util/bananojs-cache-util.js');
 const paymentUtil = require('../util/payment-util.js');
 
@@ -210,6 +211,7 @@ const initWebServer = async () => {
     data.data_packs = [];
     data.version = version;
     data.accountRegex = config.accountRegex;
+    data.siteKey = config.recaptchav3.siteKey;
 
     const selectedDataPack = getDataPackCookie(req);
     for (let dataPackIx = 0; dataPackIx < config.dataPacks.length; dataPackIx++) {
@@ -386,6 +388,7 @@ const initWebServer = async () => {
     const ix = parseInt(req.query.ix, 10);
     const colIx = parseInt(req.query.col_ix, 10);
     const rowIx = parseInt(req.query.row_ix, 10);
+    const token = req.query.token;
 
     const sessionInfo = await paymentUtil.getSessionInfo();
 
@@ -393,12 +396,17 @@ const initWebServer = async () => {
 
     const accountValidationInfo = bananojs.getBananoAccountValidationInfo(account);
 
+    const tokenValidationInfo = await recaptchav3Util.verify(token, ip);
+
     const data = {};
     data.session_description = sessionInfo.description;
     data.success = false;
     data.session_open = true;
     data.message = 'unknown error';
-    if (account == undefined) {
+    if (!tokenValidationInfo.valid) {
+      data.success = false;
+      data.message = tokenValidationInfo.message;
+    } else if (account == undefined) {
       data.success = false;
       data.message = 'account missing from request';
       // logError = true;
@@ -409,7 +417,6 @@ const initWebServer = async () => {
       // logError = true;
     } else if (!accountValidationInfo.valid) {
       data.success = false;
-      data.session_open = true;
       data.message = accountValidationInfo.message;
     } else {
       const tempData = getTempData(account, ip);
