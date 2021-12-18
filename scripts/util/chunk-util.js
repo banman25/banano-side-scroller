@@ -76,39 +76,43 @@ const loadPngChunks = async () => {
             if (b.length == 1) {
               b = '0' + b;
             }
-            // let a = pixels[ix+3].toString(16);
-            // if(a.length == 1) {
-            //   a = '0' + a;
-            // }
-            const pixel = r+g+b;
+            let a = pixels[ix+3].toString(16);
+            if (a.length == 1) {
+              a = '0' + a;
+            }
+            const pixel = r+g+b+a;
             let index = -1;
             switch (pixel) {
-              case '000000':
+              case '00000000':
                 index = -1;
                 break;
-              case 'aa7942':
+              case 'aa7942ff':
                 // ground
                 index = 0;
                 break;
-              case '0433ff':
+              case '0433ffff':
                 // water
                 index = 1;
                 break;
-              case 'fffb00':
+              case 'fffb00ff':
                 // reward
                 index = 2;
                 break;
-              case 'ff2600':
+              case 'ff2600ff':
                 // obstacle
                 index = 3;
                 break;
-              case 'ff40ff':
+              case 'ff40ffff':
                 // obstacle
                 index = 4;
                 break;
-              case 'ffffff':
+              case '000000ff':
                 // obstacle
                 index = 5;
+                break;
+              case 'ffffffff':
+                // obstacle
+                index = 6;
                 break;
               default:
                 loggingUtil.log(dateUtil.getDate(), 'loadPngChunks', 'unknown pixel', 'ix', ix, 'pixel', pixel);

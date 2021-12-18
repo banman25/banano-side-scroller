@@ -56,8 +56,20 @@
     },
     {
       "dir": "ground",
-      "img": "flavor",
-      "file": "flavor.png",
+      "img": "flavor1",
+      "file": "flavor1.png",
+      "type": "image/png"
+    },
+    {
+      "dir": "ground",
+      "img": "flavor2",
+      "file": "flavor2.png",
+      "type": "image/png"
+    },
+    {
+      "dir": "ground",
+      "img": "flavor3",
+      "file": "flavor3.png",
       "type": "image/png"
     }
   ],

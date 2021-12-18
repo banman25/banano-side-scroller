@@ -34,6 +34,8 @@ const FLAVOR1_HREF = 'ground/flavor1';
 
 const FLAVOR2_HREF = 'ground/flavor2';
 
+const FLAVOR3_HREF = 'ground/flavor3';
+
 const STATIC_BACKGROUND_HREF = 'background/static-background';
 
 const MOVING_BACKGROUND_HREF = 'background/moving-background';
@@ -50,6 +52,7 @@ const assetsHrefs = [
   OBSTACLE_HREF,
   FLAVOR1_HREF,
   FLAVOR2_HREF,
+  FLAVOR3_HREF,
 ];
 
 const allHrefs = [
@@ -61,7 +64,9 @@ const allHrefs = [
   'background/tipbot',
   'background/donations',
   GROUND_HREF,
-  FLAVOR_HREF,
+  FLAVOR1_HREF,
+  FLAVOR2_HREF,
+  FLAVOR3_HREF,
 ];
 
 if (LOG_ALL_HREFS) {
@@ -368,12 +373,12 @@ const loadBoard = async (groupSvgElt) => {
                 classNm = 'reward';
                 break;
               case WATER_HREF:
-                classNm = 'penalty';
-                break;
               case OBSTACLE_HREF:
                 classNm = 'penalty';
                 break;
-              case FLAVOR_HREF:
+              case FLAVOR1_HREF:
+              case FLAVOR2_HREF:
+              case FLAVOR3_HREF:
                 classNm = 'flavor';
                 break;
             }
