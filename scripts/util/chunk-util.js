@@ -106,6 +106,10 @@ const loadPngChunks = async () => {
                 // obstacle
                 index = 4;
                 break;
+              case 'ffffff':
+                // obstacle
+                index = 5;
+                break;
               default:
                 loggingUtil.log(dateUtil.getDate(), 'loadPngChunks', 'unknown pixel', 'ix', ix, 'pixel', pixel);
             }

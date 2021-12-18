@@ -30,7 +30,9 @@ const GROUND_HREF = 'ground/ground';
 
 const OBSTACLE_HREF = 'ground/obstacle';
 
-const FLAVOR_HREF = 'ground/flavor';
+const FLAVOR1_HREF = 'ground/flavor1';
+
+const FLAVOR2_HREF = 'ground/flavor2';
 
 const STATIC_BACKGROUND_HREF = 'background/static-background';
 
@@ -46,7 +48,8 @@ const assetsHrefs = [
   WATER_HREF,
   REWARD_HREF,
   OBSTACLE_HREF,
-  FLAVOR_HREF,
+  FLAVOR1_HREF,
+  FLAVOR2_HREF,
 ];
 
 const allHrefs = [
@@ -265,34 +268,33 @@ const updateAccountColor = () => {
 };
 
 const incrementScore = async (rewardElt) => {
+  if (window.grecaptchaToken == undefined) {
+    return;
+  }
   const ix = rewardElt.dataset.chunkIx;
   const id = rewardElt.dataset.chunkId;
   const colIx = rewardElt.dataset.chunkColIx;
   const rowIx = rewardElt.dataset.chunkRowIx;
   const account = window.localStorage.account;
-  const siteKey = document.getElementById('siteKey').innerText;
-  grecaptcha.ready(function() {
-    grecaptcha.execute(siteKey, {action: 'incrementScore'}).then(async (token) => {
-      const url = '/increment_score?' +
-       `account=${account}&id=${id}&ix=${ix}&col_ix=${colIx}&row_ix=${rowIx}&token=${token}`;
-      const response = await fetch(url, {
-        method: 'GET',
-      });
-      const responseJson = await response.json();
-      // console.log('incrementScore', responseJson);
-      if (!responseJson.success) {
-        displayErrorMessage(responseJson.message);
-      // } else {
-        // displayErrorMessage();
-      }
-      sessionClosed = !responseJson.session_open;
-
-      const sessionElt = document.querySelector('#session');
-      sessionElt.innerText = responseJson.session_description;
-
-      await loadScore();
-    });
+  const url = '/increment_score?' +
+   `account=${account}&id=${id}&ix=${ix}&col_ix=${colIx}`+
+   `&row_ix=${rowIx}&token=${window.grecaptchaToken}`;
+  const response = await fetch(url, {
+    method: 'GET',
   });
+  const responseJson = await response.json();
+  // console.log('incrementScore', responseJson);
+  if (!responseJson.success) {
+    displayErrorMessage(responseJson.message);
+  // } else {
+    // displayErrorMessage();
+  }
+  sessionClosed = !responseJson.session_open;
+
+  const sessionElt = document.querySelector('#session');
+  sessionElt.innerText = responseJson.session_description;
+
+  await loadScore();
 };
 
 const loadScore = async () => {
@@ -768,7 +770,7 @@ const keyDown = (e) => {
 
 
 const winConfetti = () => {
-  console.log('winConfetti', 'continueConfetti', continueConfetti);
+  // console.log('winConfetti', 'continueConfetti', continueConfetti);
   if (continueConfetti) {
     return;
   }

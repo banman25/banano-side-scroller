@@ -37,4 +37,23 @@
 <span class="display_none" id="siteKey">{{siteKey}}</span>
 <script type="module" src="js/views/side-scroller.js"></script>
 <script type="module" src="js-lib/confetti-1.4.0.js"></script>
- <script src="https://www.google.com/recaptcha/api.js?render={{siteKey}}"></script>
+<script src="https://www.google.com/recaptcha/api.js?render={{siteKey}}&onload=reCaptchaCallbackV3init"></script>
+<script type="text/javascript">
+  window.grecaptchaToken = undefined;
+
+  function reCaptchaCallbackV3init() {
+    const refreshGrecaptchaToken = () => {
+      grecaptcha.ready(function() {
+        const siteKey = document.getElementById('siteKey').innerText;
+        grecaptcha.execute(siteKey, {
+          action: 'incrementScore'
+        }).then(async (token) => {
+          window.grecaptchaToken = token;
+        });
+      });
+    };
+    // get the recaptcha v3 token immediately, and then every 90 seconds.
+    refreshGrecaptchaToken();
+    setInterval(refreshGrecaptchaToken, 90 * 1000)
+  }
+</script>
