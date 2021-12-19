@@ -405,7 +405,7 @@ const initWebServer = async () => {
     data.message = 'unknown error';
     if (!tokenValidationInfo.valid) {
       data.success = false;
-      data.message = tokenValidationInfo.message;
+      data.message = 'invalid token:' + tokenValidationInfo.message;
     } else if (account == undefined) {
       data.success = false;
       data.message = 'account missing from request';
@@ -417,7 +417,7 @@ const initWebServer = async () => {
       // logError = true;
     } else if (!accountValidationInfo.valid) {
       data.success = false;
-      data.message = accountValidationInfo.message;
+      data.message = 'invalid account:' + accountValidationInfo.message;
     } else {
       const tempData = getTempData(account, ip);
       // loggingUtil.log(dateUtil.getDate(), 'increment_score', 'account', account, 'ix', ix, 'id', id, 'colIx', colIx, 'rowIx', rowIx, 'tempData', tempData);

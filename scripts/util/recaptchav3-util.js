@@ -43,7 +43,7 @@ const verify = async (token, ip) => {
   // loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'response', response);
   // }
   tokenValidationInfo.valid = response.success;
-  tokenValidationInfo.message = `score ${response.score}`;
+  tokenValidationInfo.message = `score ${response.score} errors ${JSON.stringify(response.errors)}`;
   return tokenValidationInfo;
 };
 
