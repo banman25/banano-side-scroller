@@ -300,6 +300,9 @@ const incrementScore = async (rewardElt) => {
   sessionElt.innerText = responseJson.session_description;
 
   await loadScore();
+
+  window.grecaptchaToken = undefined;
+  window.refreshGrecaptchaToken();
 };
 
 const loadScore = async () => {

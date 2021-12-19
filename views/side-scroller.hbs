@@ -41,21 +41,19 @@
 <script type="text/javascript">
   window.grecaptchaToken = undefined;
 
-  function reCaptchaCallbackV3init() {
-    // console.log('reCaptchaCallbackV3init');
-    const refreshGrecaptchaToken = () => {
-      grecaptcha.ready(function() {
-        const siteKey = document.getElementById('siteKey').innerText;
-        grecaptcha.execute(siteKey, {
-          action: 'incrementScore'
-        }).then(async (token) => {
-          // console.log('grecaptchaToken', token);
-          window.grecaptchaToken = token;
-        });
+  window.refreshGrecaptchaToken = () => {
+    grecaptcha.ready(function() {
+      const siteKey = document.getElementById('siteKey').innerText;
+      grecaptcha.execute(siteKey, {
+        action: 'incrementScore'
+      }).then(async (token) => {
+        // console.log('grecaptchaToken', token);
+        window.grecaptchaToken = token;
       });
-    };
-    // get the recaptcha v3 token immediately, and then every 90 seconds.
-    refreshGrecaptchaToken();
-    setInterval(refreshGrecaptchaToken, 90 * 1000)
+    });
+  };
+
+  function reCaptchaCallbackV3init() {
+    window.refreshGrecaptchaToken();
   }
 </script>
