@@ -276,6 +276,10 @@ const incrementScore = async (rewardElt) => {
   if (window.grecaptchaToken == undefined) {
     return;
   }
+  const grecaptchaToken = window.grecaptchaToken;
+  window.grecaptchaToken = undefined;
+  window.refreshGrecaptchaToken();
+
   const ix = rewardElt.dataset.chunkIx;
   const id = rewardElt.dataset.chunkId;
   const colIx = rewardElt.dataset.chunkColIx;
@@ -283,7 +287,7 @@ const incrementScore = async (rewardElt) => {
   const account = window.localStorage.account;
   const url = '/increment_score?' +
    `account=${account}&id=${id}&ix=${ix}&col_ix=${colIx}`+
-   `&row_ix=${rowIx}&token=${window.grecaptchaToken}`;
+   `&row_ix=${rowIx}&token=${grecaptchaToken}`;
   const response = await fetch(url, {
     method: 'GET',
   });
@@ -300,9 +304,6 @@ const incrementScore = async (rewardElt) => {
   sessionElt.innerText = responseJson.session_description;
 
   await loadScore();
-
-  window.grecaptchaToken = undefined;
-  window.refreshGrecaptchaToken();
 };
 
 const loadScore = async () => {

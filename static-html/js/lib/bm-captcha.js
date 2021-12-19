@@ -83,7 +83,7 @@ bmcaptcha.captchaClicked = (event) => {
   request.answer = event.target.getAttribute('data_answer');
 
   const callbackWrapper = (response) => {
-    console.log('captchaClicked', 'response', response);
+    // console.log('captchaClicked', 'response', response);
     bmcaptcha.captchaClickedCallback(response);
   };
 

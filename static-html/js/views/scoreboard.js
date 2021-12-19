@@ -143,7 +143,9 @@ const loadPayouts = async () => {
     const payoutAccountsElt = document.querySelector('#payoutAccounts');
     clear(payoutAccountsElt);
 
-    const allAccounts = [...allAccountsSet];
+    const allListAccounts = [...allAccountsSet];
+
+    const allHistogramAccounts = [...allAccountsSet];
 
     const dates = [...Object.keys(sendByDateAndAmount)];
     // console.log('loadPayouts', dates);
@@ -152,7 +154,7 @@ const loadPayouts = async () => {
     });
 
     // account list
-    allAccounts.sort((a, b) => {
+    allListAccounts.sort((a, b) => {
       const aTotalSend = totalSendAmount[a];
       const bTotalSend = totalSendAmount[b];
       const cTotalSend = bTotalSend - aTotalSend;
@@ -184,7 +186,7 @@ const loadPayouts = async () => {
 
     addPaymentAccountHeader();
 
-    allAccounts.forEach((account) => {
+    allListAccounts.forEach((account) => {
       const trElt = addChildElement(payoutAccountsElt, 'tr', {
         id: 'payout-' + account,
       });
@@ -202,7 +204,7 @@ const loadPayouts = async () => {
     });
 
     // histogram
-    allAccounts.sort((a, b) => {
+    allHistogramAccounts.sort((a, b) => {
       const aMinDate = accountMinDate[a];
       const bMinDate = accountMinDate[b];
       const cMinDate = bMinDate.localeCompare(aMinDate);
@@ -234,7 +236,7 @@ const loadPayouts = async () => {
       });
       addText(dateElt, 'Date');
 
-      allAccounts.forEach((account, accountIx) => {
+      allHistogramAccounts.forEach((account, accountIx) => {
         const accountElt = addChildElement(trElt, 'td', {
           class: 'align_top small',
         });
@@ -250,7 +252,7 @@ const loadPayouts = async () => {
 
       const sendByCount = sendByDateAndCount[date];
 
-      allAccounts.forEach((account) => {
+      allHistogramAccounts.forEach((account) => {
         if (sendByAmount[account] === undefined) {
           sendByAmount[account] = 0;
         }
@@ -265,7 +267,8 @@ const loadPayouts = async () => {
       });
       addText(dateElt, date);
 
-      allAccounts.forEach((account) => {
+      allHistogramAccounts.forEach((account) => {
+        const accountStart = account.substring(4, 8);
         const count = sendByCount[account];
         const raw = sendByAmount[account];
         const accountElt = addChildElement(trElt, 'td', {
@@ -285,6 +288,8 @@ const loadPayouts = async () => {
             href: '#payout-' + account,
           });
           addText(anchorElt, 'ban');
+          addChildElement(anchorElt, 'br');
+          addText(anchorElt, accountStart);
           addChildElement(anchorElt, 'br');
           addText(anchorElt, banano);
           addChildElement(anchorElt, 'br');
