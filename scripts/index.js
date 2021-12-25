@@ -61,7 +61,9 @@ const init = async () => {
     process.exit(1);
   });
 
-  paymentFn();
+
+  setTimeout(paymentFn, 0);
+  setInterval(paymentFn, config.sessionStatusPollTimeMs);
 
   loggingUtil.log(dateUtil.getDate(), 'SUCCESS init');
 };
@@ -88,7 +90,6 @@ const paymentFn = async () => {
       loggingUtil.log(dateUtil.getDate(), 'paymentFn', 'error', error.message);
     } finally {
       paymentUtil.setSessionStatus(`waiting for next poll, ${config.sessionStatusPollTimeMs} ms from ${dateUtil.getDate()}`);
-      setTimeout(paymentFn, config.sessionStatusPollTimeMs);
     }
   } else {
     paymentUtil.setSessionStatus('auto payment disabled');
