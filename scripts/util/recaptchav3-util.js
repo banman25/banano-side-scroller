@@ -12,6 +12,7 @@ const recaptchav3Url = 'https://www.google.com/recaptcha/api/siteverify';
 /* eslint-disable no-unused-vars */
 let config;
 let loggingUtil;
+const ipFailMap = new Map();
 /* eslint-enable no-unused-vars */
 
 // functions
@@ -32,6 +33,18 @@ const deactivate = () => {
 };
 
 const verify = async (token, ip) => {
+  if (ipFailMap.has(ip)) {
+    const retryTimeMs = ipFailMap.get(ip);
+    const retrySeconds = Math.ceil((retryTimeMs - Date.now()) / 1000);
+    if (retrySeconds > 0) {
+      const tokenValidationInfo = {};
+      tokenValidationInfo.valid = false;
+      tokenValidationInfo.message = `retry in ${retrySeconds} seconds.`;
+      return tokenValidationInfo;
+    } else {
+      ipFailMap.delete(ip);
+    }
+  }
   const formData = {};
   formData.secret = config.recaptchav3.secretKey;
   formData.response = token;
@@ -39,6 +52,9 @@ const verify = async (token, ip) => {
   // loggingUtil.log('recaptchav3', 'verify', 'formData', formData);
   const response = await httpsUtil.sendRequest(recaptchav3Url, 'POST', formData, 'form');
   const tokenValidationInfo = {};
+  if (!response.success) {
+    ipFailMap.set(ip, Date.now() + config.recaptchav3.recaptchaRetryTimeMs);
+  }
   // if (!response.success) {
   // loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'response', response);
   // }

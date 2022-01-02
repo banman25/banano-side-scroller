@@ -98,7 +98,8 @@
   },
   "recaptchav3": {
     "siteKey": "",
-    "secretKey": ""
+    "secretKey": "",
+    "recaptchaRetryTimeMs": 5000
   },
   "bananodeApiUrl": "",
   "cookieSecret": "",
