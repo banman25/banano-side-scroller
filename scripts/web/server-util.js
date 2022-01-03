@@ -201,6 +201,8 @@ const initWebServer = async () => {
 
     data.session_status = await paymentUtil.getSessionStatus();
 
+    data.recaptchav3_status = recaptchav3Util.getStatusCountMapArray();
+
     // loggingUtil.log(dateUtil.getDate(), 'scoreboard', JSON.stringify(data));
 
     res.render('scoreboard', data);

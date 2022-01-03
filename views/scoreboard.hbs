@@ -132,6 +132,28 @@
       </div>
       <table id="payoutAccounts" class="t_center align_top display_inline_block bordered">
       </table>
+
+      <p>
+        Number of Entries: {{recaptchav3_status.length}}
+      <p>
+      <table class="t_center align_top display_inline_block bordered">
+        {{#if recaptchav3_status}}
+          <tr>
+            <td class="align_top">Status</td>
+            <td class="align_top">Count</td>
+          </tr>
+        {{/if}}
+        {{#each recaptchav3_status}}
+          <tr>
+            <td class="align_top">{{status}}</td>
+            <td class="align_top">{{count}}</td>
+          </tr>
+        {{else}}
+          <tr>
+            <td class="align_top">No Entries</td>
+          </tr>
+        {{/each}}
+      </table>
     </td>
   </tr>
 </table>

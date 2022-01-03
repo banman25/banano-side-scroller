@@ -13,6 +13,7 @@ const recaptchav3Url = 'https://www.google.com/recaptcha/api/siteverify';
 let config;
 let loggingUtil;
 const ipFailMap = new Map();
+const statusCountMap = new Map();
 /* eslint-enable no-unused-vars */
 
 // functions
@@ -30,6 +31,8 @@ const init = (_config, _loggingUtil) => {
 const deactivate = () => {
   config = undefined;
   loggingUtil = undefined;
+  ipFailMap.clear();
+  statusCountMap.clear();
 };
 
 const verify = async (token, ip) => {
@@ -67,9 +70,38 @@ const verify = async (token, ip) => {
     tokenValidationInfo.message += ` errors ${JSON.stringify(response['error-codes'])}`;
   }
   tokenValidationInfo.message = tokenValidationInfo.message.trim();
+
+  let status = '';
+  if (response.success) {
+    status += 'success';
+  } else {
+    status += 'failure';
+  }
+  if (response.score !== undefined) {
+    status += ` score ${response.score}`;
+  } else {
+    status += ` no score`;
+  }
+  if (statusCountMap.has(status)) {
+    const statusCount = statusCountMap.get(status);
+    statusCountMap.set(status, statusCount+1);
+  } else {
+    statusCountMap.set(status, 1);
+  }
+
   return tokenValidationInfo;
+};
+
+const getStatusCountMapArray = () => {
+  const array = [];
+  const entries = [...statusCountMap.entries()];
+  entries.forEach((entry) => {
+    array.push({status: entry[0], count: entry[1]});
+  });
+  return array;
 };
 
 exports.init = init;
 exports.deactivate = deactivate;
 exports.verify = verify;
+exports.getStatusCountMapArray = getStatusCountMapArray;
