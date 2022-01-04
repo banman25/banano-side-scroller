@@ -99,7 +99,8 @@
   "recaptchav3": {
     "siteKey": "",
     "secretKey": "",
-    "recaptchaRetryTimeMs": 5000
+    "recaptchaFailRetryTimeMs": 5000,
+    "recaptchaSuccessRetryTimeMs": 30000
   },
   "bananodeApiUrl": "",
   "cookieSecret": "",

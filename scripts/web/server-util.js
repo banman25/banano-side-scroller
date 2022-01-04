@@ -467,7 +467,7 @@ const initWebServer = async () => {
                           tempData.score++;
                           tempData.lastRewardTs = Date.now();
                           data.success = true;
-                          data.message = 'reward';
+                          data.message = 'reward ' + tokenValidationInfo.message;
                         } else {
                           data.message = `in chunk '${ix}', reward key '${rewardKey}' was claimed before ${config.rewardCooldownMs} ms timeout.'`;
                           // logError = true;
@@ -479,7 +479,7 @@ const initWebServer = async () => {
                       // loggingUtil.log('increment_score', 'penalty', 'tempData.score', tempData.score);
                       tempData.score = 0;
                       data.success = true;
-                      data.message = 'penalty';
+                      data.message = 'penalty ' + tokenValidationInfo.message;
                       break;
                     default:
                       data.message = `in chunk '${ix}', client value '${value}' is not a penalty '${JSON.stringify(PENALTY_IXS)}' or a reward '${REWARD_IX}'`;

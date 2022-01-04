@@ -84,7 +84,7 @@ const getSessionStatusFile = () => {
 };
 
 const setSessionStatus = (text) => {
-  loggingUtil.log(dateUtil.getDate(), 'setSessionStatus', text);
+  // loggingUtil.log(dateUtil.getDate(), 'setSessionStatus', text);
   const file = getSessionStatusFile();
   const filePtr = fs.openSync(file, 'w');
   fs.writeSync(filePtr, text);

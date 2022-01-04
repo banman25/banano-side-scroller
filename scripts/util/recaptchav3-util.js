@@ -13,6 +13,7 @@ const recaptchav3Url = 'https://www.google.com/recaptcha/api/siteverify';
 let config;
 let loggingUtil;
 const ipFailMap = new Map();
+const ipSuccessMap = new Map();
 const statusCountMap = new Map();
 /* eslint-enable no-unused-vars */
 
@@ -35,17 +36,37 @@ const deactivate = () => {
   statusCountMap.clear();
 };
 
+const getRetrySeconds = (map, ip) => {
+  const retryTimeMs = map.get(ip);
+  const retrySeconds = Math.ceil((retryTimeMs - Date.now()) / 1000);
+  return retrySeconds;
+};
+
 const verify = async (token, ip) => {
   if (ipFailMap.has(ip)) {
-    const retryTimeMs = ipFailMap.get(ip);
-    const retrySeconds = Math.ceil((retryTimeMs - Date.now()) / 1000);
+    const retrySeconds = getRetrySeconds(ipFailMap, ip);
     if (retrySeconds > 0) {
       const tokenValidationInfo = {};
       tokenValidationInfo.valid = false;
       tokenValidationInfo.message = `retry in ${retrySeconds} seconds.`;
+      // loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'ipFailMap', tokenValidationInfo);
+      incrementStatusCount('invalid token penalty period');
       return tokenValidationInfo;
     } else {
       ipFailMap.delete(ip);
+    }
+  }
+  if (ipSuccessMap.has(ip)) {
+    const retrySeconds = getRetrySeconds(ipSuccessMap, ip);
+    if (retrySeconds > 0) {
+      const tokenValidationInfo = {};
+      tokenValidationInfo.valid = true;
+      incrementStatusCount('valid token grace period');
+      tokenValidationInfo.message = `token valid for another ${retrySeconds} seconds.`;
+      // loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'ipSuccessMap', tokenValidationInfo);
+      return tokenValidationInfo;
+    } else {
+      ipSuccessMap.delete(ip);
     }
   }
   const formData = {};
@@ -55,8 +76,10 @@ const verify = async (token, ip) => {
   // loggingUtil.log('recaptchav3', 'verify', 'formData', formData);
   const response = await httpsUtil.sendRequest(recaptchav3Url, 'POST', formData, 'form');
   const tokenValidationInfo = {};
-  if (!response.success) {
-    ipFailMap.set(ip, Date.now() + config.recaptchav3.recaptchaRetryTimeMs);
+  if (response.success) {
+    ipSuccessMap.set(ip, Date.now() + config.recaptchav3.recaptchaSuccessRetryTimeMs);
+  } else {
+    ipFailMap.set(ip, Date.now() + config.recaptchav3.recaptchaFailRetryTimeMs);
   }
   // if (!response.success) {
   // loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'response', response);
@@ -82,14 +105,18 @@ const verify = async (token, ip) => {
   } else {
     status += ` no score`;
   }
+  incrementStatusCount(status);
+
+  return tokenValidationInfo;
+};
+
+const incrementStatusCount = (status) => {
   if (statusCountMap.has(status)) {
     const statusCount = statusCountMap.get(status);
     statusCountMap.set(status, statusCount+1);
   } else {
     statusCountMap.set(status, 1);
   }
-
-  return tokenValidationInfo;
 };
 
 const getStatusCountMapArray = () => {
