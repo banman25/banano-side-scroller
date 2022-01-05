@@ -92,6 +92,7 @@ let boardLoading = false;
 let sessionClosedCountdown = 0;
 let continueConfetti = false;
 let remainingJumpCount = 2;
+let retryNow = 0;
 
 const onLoad = async () => {
   document.addEventListener('keydown', keyDown, false);
@@ -276,9 +277,20 @@ const incrementScore = async (rewardElt) => {
   if (window.grecaptchaToken == undefined) {
     return;
   }
-  const grecaptchaToken = window.grecaptchaToken;
-  window.grecaptchaToken = undefined;
-  window.refreshGrecaptchaToken();
+  let grecaptchaToken;
+  const retryNowDiff = retryNow - Date.now();
+
+  // const retryNowMsg = `retryNow = ${retryNow}, now = ${Date.now()}, diff = ${retryNowDiff}`;
+  // console.log(retryNowMsg);
+
+  if (retryNowDiff > 1000) {
+    grecaptchaToken = '';
+  } else {
+    retryNow = 0;
+    grecaptchaToken = window.grecaptchaToken;
+    window.grecaptchaToken = undefined;
+    window.refreshGrecaptchaToken();
+  }
 
   const ix = rewardElt.dataset.chunkIx;
   const id = rewardElt.dataset.chunkId;
@@ -295,8 +307,11 @@ const incrementScore = async (rewardElt) => {
   // console.log('incrementScore', responseJson);
   if (!responseJson.success) {
     displayErrorMessage(responseJson.message);
-  // } else {
-    // displayErrorMessage();
+  } else {
+    if (responseJson.retrySeconds !== undefined) {
+      retryNow = Date.now() + (responseJson.retrySeconds * 1000);
+      // displayErrorMessage(retryNowMsg);
+    }
   }
   sessionClosed = !responseJson.session_open;
 

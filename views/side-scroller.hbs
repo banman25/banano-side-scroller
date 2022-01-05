@@ -42,15 +42,17 @@
   window.grecaptchaToken = undefined;
 
   window.refreshGrecaptchaToken = () => {
-    grecaptcha.ready(function() {
-      const siteKey = document.getElementById('siteKey').innerText;
-      grecaptcha.execute(siteKey, {
-        action: 'incrementScore'
-      }).then(async (token) => {
-        // console.log('grecaptchaToken', token);
-        window.grecaptchaToken = token;
+    if (window.grecaptchaToken == undefined) {
+      grecaptcha.ready(function() {
+        const siteKey = document.getElementById('siteKey').innerText;
+        grecaptcha.execute(siteKey, {
+          action: 'incrementScore'
+        }).then(async (token) => {
+          // console.log('grecaptchaToken', token);
+          window.grecaptchaToken = token;
+        });
       });
-    });
+    }
   };
 
   function reCaptchaCallbackV3init() {

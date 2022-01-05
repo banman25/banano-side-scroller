@@ -24,6 +24,10 @@
 
 ### todo
 
-1. add captcha timer, in case bots are just doing the captcha over and over.
+0.  do captcha countdown reload on a  timer, so it doesn't spam it.
 
-2. add payout cap, so if the payout is above the cap, it will just be at the cap. (to make refilling not mess with the cap as much)
+1.  add token valid time to response, so req doesn't spam tokens.
+
+2.  add captcha timer, in case bots are just doing the captcha over and over.
+
+3.  add payout cap, so if the payout is above the cap, it will just be at the cap. (to make refilling not mess with the cap as much)

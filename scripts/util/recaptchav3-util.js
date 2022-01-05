@@ -48,6 +48,7 @@ const verify = async (token, ip) => {
     if (retrySeconds > 0) {
       const tokenValidationInfo = {};
       tokenValidationInfo.valid = false;
+      tokenValidationInfo.retrySeconds = retrySeconds;
       tokenValidationInfo.message = `retry in ${retrySeconds} seconds.`;
       // loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'ipFailMap', tokenValidationInfo);
       incrementStatusCount('invalid token penalty period');
@@ -61,6 +62,7 @@ const verify = async (token, ip) => {
     if (retrySeconds > 0) {
       const tokenValidationInfo = {};
       tokenValidationInfo.valid = true;
+      tokenValidationInfo.retrySeconds = retrySeconds;
       incrementStatusCount('valid token grace period');
       tokenValidationInfo.message = `token valid for another ${retrySeconds} seconds.`;
       // loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'ipSuccessMap', tokenValidationInfo);
@@ -77,9 +79,13 @@ const verify = async (token, ip) => {
   const response = await httpsUtil.sendRequest(recaptchav3Url, 'POST', formData, 'form');
   const tokenValidationInfo = {};
   if (response.success) {
-    ipSuccessMap.set(ip, Date.now() + config.recaptchav3.recaptchaSuccessRetryTimeMs);
+    const retrySeconds = config.recaptchav3.recaptchaSuccessRetryTimeMs;
+    tokenValidationInfo.retrySeconds = retrySeconds;
+    ipSuccessMap.set(ip, Date.now() + retrySeconds);
   } else {
-    ipFailMap.set(ip, Date.now() + config.recaptchav3.recaptchaFailRetryTimeMs);
+    const retrySeconds = config.recaptchav3.recaptchaFailRetryTimeMs;
+    tokenValidationInfo.retrySeconds = retrySeconds;
+    ipFailMap.set(ip, Date.now() + retrySeconds);
   }
   // if (!response.success) {
   // loggingUtil.log(dateUtil.getDate(), 'recaptchav3', 'verify', 'response', response);

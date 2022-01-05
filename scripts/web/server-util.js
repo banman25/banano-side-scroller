@@ -405,6 +405,7 @@ const initWebServer = async () => {
     data.success = false;
     data.session_open = true;
     data.message = 'unknown error';
+    data.retrySeconds = tokenValidationInfo.retrySeconds;
     if (!tokenValidationInfo.valid) {
       data.success = false;
       data.message = 'invalid token:' + tokenValidationInfo.message;
