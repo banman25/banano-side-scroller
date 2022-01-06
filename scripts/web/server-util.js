@@ -214,6 +214,7 @@ const initWebServer = async () => {
     data.version = version;
     data.accountRegex = config.accountRegex;
     data.siteKey = config.recaptchav3.siteKey;
+    data.action = config.recaptchav3.action;
 
     const selectedDataPack = getDataPackCookie(req);
     for (let dataPackIx = 0; dataPackIx < config.dataPacks.length; dataPackIx++) {

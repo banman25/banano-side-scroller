@@ -99,6 +99,7 @@
   "recaptchav3": {
     "siteKey": "",
     "secretKey": "",
+    "action":"reward",
     "recaptchaFailRetryTimeMs": 5000,
     "recaptchaSuccessRetryTimeMs": 30000
   },

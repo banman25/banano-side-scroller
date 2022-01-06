@@ -106,6 +106,11 @@ const verify = async (token, ip) => {
   } else {
     status += 'failure';
   }
+  if (response.hostname !== undefined) {
+    status += ` ${response.hostname}`;
+  } else {
+    status += ` no hostname`;
+  }
   if (response.score !== undefined) {
     status += ` score ${response.score}`;
   } else {

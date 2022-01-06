@@ -46,7 +46,7 @@
       grecaptcha.ready(function() {
         const siteKey = document.getElementById('siteKey').innerText;
         grecaptcha.execute(siteKey, {
-          action: 'incrementScore'
+          action: '{{action}}'
         }).then(async (token) => {
           // console.log('grecaptchaToken', token);
           window.grecaptchaToken = token;
