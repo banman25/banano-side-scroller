@@ -24,6 +24,11 @@
 
 ### todo
 
+0. add stats:
+- average playing time
+- histogram of longest bm win streak
+- histogram of win/loss ratio per player.
+
 0.  do captcha countdown reload on a  timer, so it doesn't spam it.
 
 1.  add token valid time to response, so req doesn't spam tokens.
