@@ -74,23 +74,15 @@
     }
   ],
   "chunks": [],
-  "defaultDataPack": "basic",
+  "defaultDataPack": "flyer",
   "dataPacks": [
     {
       "name": "minimal",
       "url": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/minimal/static-html/"
     },
     {
-      "name": "basic",
-      "url": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/basic/static-html/"
-    },
-    {
-      "name": "volcano",
-      "url": "https://volcano.coranos.cc/side-scroller/"
-    },
-    {
-      "name": "space",
-      "url": "https://raw.githubusercontent.com/BananoCoin/banano-side-scroller/main/docs/sample-data-pack/space/static-html/"
+      "name": "flyer",
+      "url": "https://raw.githubusercontent.com/banman25/Banano-Images/main/Banano%20Game/"
     }
   ],
   "web": {
